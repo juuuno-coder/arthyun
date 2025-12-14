@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { Montserrat, Crimson_Text, Open_Sans } from "next/font/google";
 import "./globals.css";
 // 👇 헤더 컴포넌트 경로 확인 (components/Header 인지 components/ui/Header 인지)
@@ -93,9 +94,14 @@ export default function RootLayout({
             {/* 왼쪽: 로고 및 주소 */}
             <div className="space-y-4">
               {/* 복원된 푸터 로고 */}
-              <div className="mb-6 opacity-80 hover:opacity-100 transition-opacity">
-                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                 <img src={footerLogoUrl} alt="Art Hyun Logo" className="h-4 md:h-6 w-auto object-contain brightness-0 invert" />
+              <div className="mb-6 opacity-80 hover:opacity-100 transition-opacity relative h-6 w-32">
+                 <Image 
+                   src={footerLogoUrl} 
+                   alt="Art Hyun Logo" 
+                   fill
+                   className="object-contain object-left brightness-0 invert"
+                   sizes="(max-width: 768px) 100px, 150px"
+                 />
               </div>
 
               <div>

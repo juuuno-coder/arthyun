@@ -5,19 +5,11 @@ import { incrementVisitor } from "@/actions/statsActions";
 
 export default function VisitorTracker() {
   useEffect(() => {
-    // 세션 스토리지 체크 (새로고침 시 중복 카운팅 방지)
-    // 브라우저 닫았다 켜면 다시 카운트 (세션 기준)
-    const hasVisited = sessionStorage.getItem("artway_visited");
-
-    if (!hasVisited) {
-      incrementVisitor()
-        .then(() => {
-          sessionStorage.setItem("artway_visited", "true");
-          console.log("📈 Visitor Counted");
-        })
-        .catch((err) => console.error("Stats Error:", err));
-    }
+    // 서버 액션이 내부적으로 쿠키/IP를 체크하여 중복을 방지하므로
+    // 클라이언트에서는 단순히 호출만 합니다.
+    // 필요 시 경로 정보 등을 넘길 수 있습니다.
+    incrementVisitor().catch((err) => console.error("Stats Error:", err));
   }, []);
 
-  return null; // 렌더링 할 UI 없음
+  return null;
 }

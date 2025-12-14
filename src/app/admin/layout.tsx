@@ -53,12 +53,12 @@ export default function AdminLayout({
                             >
                                 문의 관리
                             </Link>
-                            <Link
+                            {/* <Link
                                 href="/admin/library"
                                 className="hover:text-black transition-colors"
                             >
                                 미디어 라이브러리
-                            </Link>
+                            </Link> */}
                             <Link
                                 href="/admin/settings"
                                 className="hover:text-black transition-colors"

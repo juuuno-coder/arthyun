@@ -1,8 +1,14 @@
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
+import { Metadata } from 'next';
 
-// 데이터가 자주 바뀔 수 있으므로 캐시를 사용하지 않음
-export const revalidate = 0;
+// 1분마다 갱신 (ISR) - 성능과 최신성 균형
+export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: 'Notice - Art Hyun',
+  description: '아트현의 새로운 소식과 공지사항을 확인하세요.',
+};
 
 export default async function NoticePage() {
   // Supabase에서 게시글 목록 가져오기

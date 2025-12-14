@@ -28,8 +28,7 @@ export default function MallPage() {
 
             <p className="text-gray-500 leading-loose mb-10 font-light">
                 아트현과 함께하는 작가들의 독창적인 굿즈와 <br className="hidden md:block"/>
-                예술 작품을 만날 수 있는 온라인 스토어를 준비하고 있습니다.<br />
-                조금만 기다려주세요.
+                예술 작품을 만날 수 있는 온라인 스토어를 준비하고 있습니다.
             </p>
 
             <Link href="/contact" className="block w-full py-4 border border-gray-200 text-xs font-bold tracking-widest uppercase hover:border-black hover:bg-black hover:text-white transition-all duration-300 rounded-lg">

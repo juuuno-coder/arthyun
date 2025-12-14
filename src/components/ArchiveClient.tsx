@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
 import { X, Search } from "lucide-react"; 
 import { Button } from "@/components/ui/button";
 import { createBrowserClient } from "@supabase/ssr";
@@ -44,6 +46,7 @@ export default function ArchiveClient({ initialData }: { initialData: any[] }) {
   const router = useRouter();
   // 모달 상태 관리
   const [selectedExhibition, setSelectedExhibition] = useState<any>(null);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
 
@@ -129,13 +132,24 @@ export default function ArchiveClient({ initialData }: { initialData: any[] }) {
   // ESC 키로 모달 닫기
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && selectedExhibition) {
-        setSelectedExhibition(null);
+      if (e.key === "Escape") {
+        // 1. 라이트박스가 열려있으면 라이트박스만 닫음
+        if (isLightboxOpen) {
+          setIsLightboxOpen(false);
+          // 라이트박스는 이벤트 버블링이나 라이브러리 자체 처리가 있을 수 있으므로
+          // 여기서 return하여 모달 닫기 로직이 실행되지 않도록 함
+          return;
+        }
+
+        // 2. 라이트박스가 닫혀있고, 모달이 열려있으면 모달 닫음
+        if (selectedExhibition) {
+          setSelectedExhibition(null);
+        }
       }
     };
     document.addEventListener("keydown", handleEscape);
     return () => document.removeEventListener("keydown", handleEscape);
-  }, [selectedExhibition]);
+  }, [selectedExhibition, isLightboxOpen]);
 
   return (
     <>
@@ -260,7 +274,7 @@ export default function ArchiveClient({ initialData }: { initialData: any[] }) {
             onClick={() => setSelectedExhibition(null)}
           />
 
-          <div className="bg-white w-full h-full md:w-[90%] md:h-[90vh] md:max-w-6xl md:rounded-xl relative shadow-2xl flex flex-col md:overflow-hidden overflow-y-auto">
+          <div className="bg-white w-full h-full md:w-[95vw] md:h-[90vh] md:max-w-[1600px] md:rounded-xl relative shadow-2xl flex flex-col md:overflow-hidden overflow-y-auto">
             
             <div className="absolute top-6 right-6 flex items-center gap-2 z-10">
               <div className="flex items-center gap-2">
@@ -294,20 +308,25 @@ export default function ArchiveClient({ initialData }: { initialData: any[] }) {
 
             <div className="flex flex-col md:flex-row flex-1 h-full">
               {/* Left: Image (Fit Contain) */}
-              <div className="w-full md:w-[45%] bg-[#F8F8F8] p-8 md:p-12 flex items-center justify-center border-b md:border-b-0 md:border-r border-gray-100 shrink-0">
+              <div className="w-full md:w-[16%] bg-[#F8F8F8] p-4 flex items-center justify-center border-b md:border-b-0 md:border-r border-gray-100 shrink-0">
                 {selectedExhibition.poster_url ? (
-                  <img
-                    src={selectedExhibition.poster_url}
-                    alt={selectedExhibition.title}
-                    className="w-full h-auto max-h-[70vh] object-contain shadow-lg"
-                  />
+                  <div 
+                    className="cursor-zoom-in w-full h-full flex items-center justify-center relative"
+                    onClick={() => setIsLightboxOpen(true)}
+                  >
+                     <img
+                      src={selectedExhibition.poster_url}
+                      alt={selectedExhibition.title}
+                      className="w-full h-auto max-h-[70vh] object-contain shadow-lg"
+                    />
+                  </div>
                 ) : (
                     <div className="text-gray-300 tracking-widest text-xs">NO IMAGE AVAILABLE</div>
                 )}
               </div>
 
               {/* Right: Info */}
-              <div className="w-full md:w-[55%] p-8 md:p-16 space-y-10 bg-white md:overflow-y-auto h-full custom-scrollbar">
+              <div className="w-full md:w-[84%] p-8 md:p-16 space-y-10 bg-white md:overflow-y-auto h-full custom-scrollbar">
                 
                 {/* Header Info */}
                 <div>
@@ -348,8 +367,22 @@ export default function ArchiveClient({ initialData }: { initialData: any[] }) {
               </div>
             </div>
           </div>
-        </div>
-      )}
+
+
+        
+        {/* Lightbox Component */}
+        <Lightbox
+            open={isLightboxOpen}
+            close={() => setIsLightboxOpen(false)}
+            slides={[{ src: selectedExhibition.poster_url }]}
+            styles={{ container: { backgroundColor: "rgba(0, 0, 0, .9)", zIndex: 10000 } }}
+            render={{
+             buttonPrev: () => null,
+             buttonNext: () => null,
+            }}
+        />
+      </div>
+     )}
     </>
   );
 }

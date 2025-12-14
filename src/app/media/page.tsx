@@ -38,7 +38,7 @@ export default async function MediaPage() {
     date: item.published_date || item.created_at,
     image: item.image_url,
     source: item.press_name || "NEWS",
-    link: item.link_url || `/media/${item.id}` // Internal link if no external
+    link: `/media/${item.id}` // Always go to detail detail page
   }));
                    
   // const oldItems = ... removed ...

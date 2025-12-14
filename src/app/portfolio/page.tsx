@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { createServerSideClient } from "@/lib/supabase-server";
 import ArchiveClient from "@/components/ArchiveClient";
 import { AdminPortfolioButton } from "@/components/AdminButtons";
 import { extractFirstImage } from "@/lib/utils";
@@ -6,6 +6,11 @@ import { extractFirstImage } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 
 export default async function PortfolioPage() {
+  const supabase = await createServerSideClient();
+  
+  // 0. Check User Session
+  const { data: { user } } = await supabase.auth.getUser();
+
   // 1. Fetch new portfolios data
   const { data: portfolios, error } = await supabase
     .from("portfolios")
@@ -60,10 +65,12 @@ export default async function PortfolioPage() {
             </p>
           </div>
           
-          {/* Admin Button (Mobile/Desktop) */}
-          <div className="absolute top-0 right-0 p-6 md:p-0 md:relative md:top-auto md:right-auto">
-             <AdminPortfolioButton /> 
-          </div>
+          {/* Admin Button (Mobile/Desktop) - Only visible to logged-in users */}
+          {user && (
+            <div className="absolute top-0 right-0 p-6 md:p-0 md:relative md:top-auto md:right-auto">
+               <AdminPortfolioButton /> 
+            </div>
+          )}
         </div>
 
         {/* Client Component (Grid & Modal) */}

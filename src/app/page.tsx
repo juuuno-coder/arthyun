@@ -1,12 +1,14 @@
 import { supabase } from "@/lib/supabase";
 import MainSlider from "@/components/MainSlider"; 
 import MainBackground from "@/components/MainBackground";
+import Image from "next/image";
+import Link from "next/link";
 
-// 데이터가 계속 바뀌므로 캐싱하지 않음 (새로고침 시 즉시 반영)
-export const dynamic = "force-dynamic";
+// 1분마다 갱신 (ISR) - 성능 최적화
+export const revalidate = 60;
 
 export default async function HomePage() {
-  console.log("--------------- [메인 페이지 로드 시작] ---------------");
+
 
   try {
     // 1. 포트폴리오 데이터 가져오기 (메인 슬라이더용) - 잠시 연동 해제
@@ -35,24 +37,31 @@ export default async function HomePage() {
                 ) : (
                 <div className="h-full flex flex-col items-center justify-center text-white/80 gap-8 text-center px-4 animate-fade-in">
                     {/* 1. 포스터 이미지 (링크 연결 및 사이즈 축소) */}
+                    {/* 1. 포스터 이미지 (링크 연결 및 사이즈 축소) - Next.js Image 최적화 */}
                     {mainSettings?.poster_url && (
-                        <div className="relative max-w-full flex items-center justify-center">
+                        <div className="relative w-full max-w-[400px] md:max-w-[500px] h-[50vh] flex items-center justify-center">
                             {mainSettings.link_url ? (
-                                <a href={mainSettings.link_url} className="cursor-pointer hover:opacity-90 transition-opacity">
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img 
+                                <a href={mainSettings.link_url} className="relative w-full h-full block hover:opacity-90 transition-opacity">
+                                    <Image 
                                         src={mainSettings.poster_url} 
                                         alt="Main Poster" 
-                                        className="max-w-[400px] md:max-w-[500px] max-h-[50vh] object-contain drop-shadow-2xl"
+                                        fill
+                                        className="object-contain drop-shadow-2xl"
+                                        sizes="(max-width: 768px) 90vw, 500px"
+                                        priority
                                     />
                                 </a>
                             ) : (
-                                /* eslint-disable-next-line @next/next/no-img-element */
-                                <img 
-                                    src={mainSettings.poster_url} 
-                                    alt="Main Poster" 
-                                    className="max-w-[400px] md:max-w-[500px] max-h-[50vh] object-contain drop-shadow-2xl"
-                                />
+                                <div className="relative w-full h-full">
+                                    <Image 
+                                        src={mainSettings.poster_url} 
+                                        alt="Main Poster" 
+                                        fill
+                                        className="object-contain drop-shadow-2xl"
+                                        sizes="(max-width: 768px) 90vw, 500px"
+                                        priority
+                                    />
+                                </div>
                             )}
                         </div>
                     )}
