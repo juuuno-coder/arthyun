@@ -1,0 +1,107 @@
+{
+  "meta": {
+    "project": "Artway Exhibition Platform",
+    "date": "2025-12-05",
+    "prepared_by": "Software Development Manager"
+  },
+  "product_overview": "Artway is a web platform designed to manage and showcase exhibitions and media releases. It features public-facing pages for browsing exhibitions and media, along with robust admin interfaces for managing content, including exhibitions and media assets. The platform supports authentication and is built with modern web technologies for a seamless user experience.",
+  "core_goals": [
+    "Provide an intuitive and visually appealing public interface to browse exhibitions and media releases.",
+    "Allow administrators to efficiently create, update, and delete exhibitions and media content.",
+    "Ensure robust user authentication and session management for secure admin access.",
+    "Optimize mobile and desktop navigation for a seamless user experience, including mobile-responsive menus.",
+    "Improve user experience with better empty states, image loading, and interactive UI elements."
+  ],
+  "key_features": [
+    "Authentication system integrated with Supabase Auth supporting login and middleware for access control.",
+    "Admin exhibition management with capabilities to list, create, and delete exhibitions.",
+    "Admin media management allowing listing, creation, and deletion of media items.",
+    "Public main page with a slider showcasing featured exhibitions marked as main slider.",
+    "Public archive page listing all past exhibitions for user browsing.",
+    "Public media page listing press releases and related media content.",
+    "Mobile responsive navigation with hamburger menu and drawer for mobile devices (pending implementation).",
+    "Enhanced user feedback on file uploads with progress indicators (recommended).",
+    "Improved deletion confirmation dialogs using modern UI components instead of default browser confirms."
+  ],
+  "user_flow_summary": [
+    "Users visit the public main page and see a slider of featured exhibitions if available; otherwise, a default image or branding is shown.",
+    "Visitors navigate to the archive page to view a list of past exhibitions.",
+    "Visitors access the media page to view press releases and media content.",
+    "Admins authenticate via the login page using Supabase Auth.",
+    "Authenticated admins access admin pages to manage exhibitions and media, including listing, creating, and deleting entries.",
+    "Mobile users access navigation via a hamburger menu that expands a drawer with navigation links (to be implemented)."
+  ],
+  "validation_criteria": [
+    "Successful user authentication and session management with Supabase Auth.",
+    "Admin functionalities to list, create, and delete exhibitions and media must work without errors.",
+    "No 404 errors in navigation; all new pages such as login, signup, mypage, recruit, and submission are accessible.",
+    "Mobile navigation is fully implemented and functional with hamburger menu and drawer navigation at screen widths below 768px.",
+    "Improved empty states on the main page display appropriate fallback images or branding.",
+    "Image loading uses optimized techniques such as blur placeholders or skeleton UI for better user experience.",
+    "Deletion confirmation dialogs use updated UI components replacing default browser confirms.",
+    "Automated build and deployment processes complete successfully without errors."
+  ],
+  "code_summary": {
+    "tech_stack": [
+      "TypeScript",
+      "Next.js",
+      "React",
+      "Tailwind CSS",
+      "Supabase"
+    ],
+    "features": [
+      {
+        "name": "Auth",
+        "description": "Authentication using Supabase Auth (Login, Middleware)",
+        "files": [
+          "src/app/login/page.tsx",
+          "src/actions/authActions.ts",
+          "src/middleware.ts"
+        ]
+      },
+      {
+        "name": "Admin Exhibition",
+        "description": "Admin exhibition management (List, Create, Delete)",
+        "files": [
+          "src/app/admin/exhibition/page.tsx",
+          "src/app/admin/exhibition/write/page.tsx",
+          "src/actions/exhibitionActions.ts",
+          "src/components/admin/DeleteExhibitionButton.tsx"
+        ]
+      },
+      {
+        "name": "Admin Media",
+        "description": "Admin media management (List, Create, Delete)",
+        "files": [
+          "src/app/admin/media/page.tsx",
+          "src/app/admin/media/write/page.tsx",
+          "src/actions/mediaActions.ts",
+          "src/components/admin/DeleteMediaButton.tsx"
+        ]
+      },
+      {
+        "name": "Main Page",
+        "description": "Public home page with main slider",
+        "files": [
+          "src/app/page.tsx",
+          "src/components/MainSlider.tsx"
+        ]
+      },
+      {
+        "name": "Archive Page",
+        "description": "Public archive page listing exhibitions",
+        "files": [
+          "src/app/archive/page.tsx",
+          "src/components/ArchiveClient.tsx"
+        ]
+      },
+      {
+        "name": "Media Page",
+        "description": "Public media page listing press releases",
+        "files": [
+          "src/app/media/page.tsx"
+        ]
+      }
+    ]
+  }
+}

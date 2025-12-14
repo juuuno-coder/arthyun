@@ -1,0 +1,25 @@
+
+-- Create inquiries table if not exists (renaming from contact_messages for consistency with existing action)
+CREATE TABLE IF NOT EXISTS inquiries (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  type TEXT, -- 'general' or 'exhibition'
+  name TEXT,
+  phone TEXT,
+  email TEXT,
+  content TEXT,
+  status TEXT DEFAULT 'unread',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Enable RLS
+ALTER TABLE inquiries ENABLE ROW LEVEL SECURITY;
+
+-- Policies
+CREATE POLICY "Anyone can insert inquiries" ON inquiries
+  FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Authenticated users can view inquiries" ON inquiries
+  FOR SELECT TO authenticated USING (true);
+  
+CREATE POLICY "Authenticated users can update inquiries" ON inquiries
+  FOR UPDATE TO authenticated USING (true);

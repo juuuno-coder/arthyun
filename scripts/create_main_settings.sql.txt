@@ -1,0 +1,45 @@
+-- [Create Main Settings Table]
+-- 메인 페이지 설정(유튜브 배경, 센터 텍스트)을 저장할 테이블 생성
+-- 관리자 페이지 SQL 에디터에서 실행하세요.
+
+-- 1. Table Creation
+CREATE TABLE IF NOT EXISTS public.main_settings (
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    youtube_url text NULL,
+    center_text text NULL,
+    created_at timestamptz NULL DEFAULT now(),
+    updated_at timestamptz NULL DEFAULT now(),
+    CONSTRAINT main_settings_pkey PRIMARY KEY (id)
+);
+
+-- 2. Enforce Single Row (Singleton Pattern)
+-- 오직 하나의 설정 행만 존재하도록 제한 (ID가 고정되거나 행 개수가 1개여야 함)
+-- 여기서는 간단히 행 하나를 미리 생성해두고 이를 계속 수정해서 쓰도록 유도합니다.
+
+-- 기존 데이터가 없으면 초기 데이터 삽입
+INSERT INTO public.main_settings (youtube_url, center_text)
+SELECT 'https://www.youtube.com/watch?v=AMlZ14j5DtQ', ''
+WHERE NOT EXISTS (SELECT 1 FROM public.main_settings);
+
+-- 3. RLS Policies
+ALTER TABLE public.main_settings ENABLE ROW LEVEL SECURITY;
+
+-- 모든 사용자 읽기 허용
+CREATE POLICY "Allow public read main_settings"
+ON public.main_settings
+FOR SELECT
+USING (true);
+
+-- 모든 사용자 수정 허용 (관리자 페이지에서 익명 클라이언트로 접속하는 현재 구조상)
+CREATE POLICY "Allow public update main_settings"
+ON public.main_settings
+FOR UPDATE
+USING (true);
+
+-- Insert는 초기 1회만 필요하므로 열어두거나 막아도 됨 (여기서는 일단 허용)
+CREATE POLICY "Allow public insert main_settings"
+ON public.main_settings
+FOR INSERT
+WITH CHECK (true);
+
+SELECT 'Main settings table created and initialized.' as result;

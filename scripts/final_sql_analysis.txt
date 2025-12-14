@@ -1,0 +1,72 @@
+
+=== RAW SQL DUMP ANALYSIS ===
+Total Rows in 'posts' table: 391
+
+--- Distribution (Type & Status) ---
+
+[attachment] inherit: 237 items
+   Samples:
+   - ID:52 | Parent:0 | GUID:http://arthyun.co.kr/wp-content/uploads/2014/04/4.jpg
+   - ID:57 | Parent:0 | GUID:http://arthyun.co.kr/wp-content/uploads/2014/04/5.jpg
+   - ID:58 | Parent:0 | GUID:http://arthyun.co.kr/wp-content/uploads/2014/04/7.jpg
+   - ID:59 | Parent:0 | GUID:http://arthyun.co.kr/wp-content/uploads/2014/04/2.jpg
+   - ID:60 | Parent:0 | GUID:http://arthyun.co.kr/wp-content/uploads/2014/04/6.jpg
+   - ID:65 | Parent:3864 | GUID:http://arthyun.co.kr/wp-content/uploads/2015/10/slomobigsurmp4.jpg
+   - ID:76 | Parent:0 | GUID:http://arthyun.co.kr/wp-content/uploads/2016/04/v20-lite-1.jpg
+   - ID:77 | Parent:0 | GUID:http://arthyun.co.kr/wp-content/uploads/2016/04/v20-lite-2.jpg
+   - ID:79 | Parent:78 | GUID:http://arthyun.co.kr/wp-content/uploads/2018/11/oshine-v45-06.jpg
+   - ID:80 | Parent:62 | GUID:http://arthyun.co.kr/wp-content/uploads/2016/04/oshine-v45-10.jpg
+
+[customize_changeset] trash: 7 items
+   Samples:
+   - (4269) 
+   - (4270) 
+   - (4272) 
+
+[nav_menu_item] publish: 35 items
+   Samples:
+   - (3270) Pages
+   - (3271) Portfolio
+   - (3814) Journal
+
+[page] draft: 1 items
+   Samples:
+   - (3) 개인 정보 보호 정책
+
+[page] publish: 35 items
+   Samples:
+   - (2) 샘플 페이지
+   - (9) About Us - v45
+   - (39) Portfolio Grid - v45
+
+[portfolio] draft: 7 items
+   Samples:
+   - (37) Aqua
+   - (62) Underwater
+   - (3231) Lightbox Gallery
+
+[portfolio] publish: 51 items
+   Samples:
+   - (22) Right Fixed Sidebar
+   - (27) Vertical Stacked
+   - (28) Nespresso
+
+[post] auto-draft: 1 items
+   Samples:
+   - (4338) 자동 임시글
+
+[post] draft: 1 items
+   Samples:
+   - (4096) test
+
+[post] publish: 13 items
+   Samples:
+   - (1) 안녕하세요!
+   - (2762) Oshine - a Creative Multipurpose Wordpress theme
+   - (2763) Its time to change the web, one pixel at a time
+
+[wpcf7_contact_form] publish: 3 items
+   Samples:
+   - (5) Contact form 1
+   - (2847) Contact form 1
+   - (3813) Contact form 1

@@ -1,0 +1,38 @@
+-- Ensure migration_uploads is public
+update storage.buckets
+set public = true
+where id = 'migration_uploads';
+
+-- Insert if not exists
+insert into storage.buckets (id, name, public)
+select 'migration_uploads', 'migration_uploads', true
+where not exists (
+    select 1 from storage.buckets where id = 'migration_uploads'
+);
+
+-- Policy: Public Read
+drop policy if exists "Public Access Migration" on storage.objects;
+create policy "Public Access Migration"
+on storage.objects for select
+using ( bucket_id = 'migration_uploads' );
+
+-- Policy: Admin Upload/Update (Authenticated)
+drop policy if exists "Admin Upload Migration" on storage.objects;
+create policy "Admin Upload Migration"
+on storage.objects for insert
+with check ( bucket_id = 'migration_uploads' );
+
+drop policy if exists "Admin Update Migration" on storage.objects;
+create policy "Admin Update Migration"
+on storage.objects for update
+with check ( bucket_id = 'migration_uploads' );
+
+-- Also ensure 'images' and 'og_images' are public
+update storage.buckets
+set public = true
+where id in ('images', 'og_images');
+
+drop policy if exists "Public Access Images" on storage.objects;
+create policy "Public Access Images"
+on storage.objects for select
+using ( bucket_id in ('images', 'og_images') );

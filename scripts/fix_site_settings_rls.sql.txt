@@ -1,0 +1,41 @@
+-- [Fix Site Settings RLS & OG Images]
+-- 이 스크립트를 관리자 페이지의 SQL 에디터에서 실행하세요.
+
+-- 1. site_settings 테이블 권한 설정 (RLS 정책 수정)
+DROP POLICY IF EXISTS "Enable read access for all users" ON public.site_settings;
+DROP POLICY IF EXISTS "Enable insert for authenticated users only" ON public.site_settings;
+DROP POLICY IF EXISTS "Enable update for authenticated users only" ON public.site_settings;
+DROP POLICY IF EXISTS "Enable all access for all users" ON public.site_settings;
+
+ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
+
+-- 모든 사용자에게 모든 권한 허용 (관리자 편의상)
+CREATE POLICY "Enable all access for all users"
+ON public.site_settings
+FOR ALL
+USING (true)
+WITH CHECK (true);
+
+
+-- 2. 스토리지 버킷 설정 (og_images)
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('og_images', 'og_images', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+DROP POLICY IF EXISTS "Allow public read og_images" ON storage.objects;
+DROP POLICY IF EXISTS "Allow public insert og_images" ON storage.objects;
+DROP POLICY IF EXISTS "Allow public update og_images" ON storage.objects;
+
+CREATE POLICY "Allow public read og_images"
+ON storage.objects FOR SELECT
+USING ( bucket_id = 'og_images' );
+
+CREATE POLICY "Allow public insert og_images"
+ON storage.objects FOR INSERT
+WITH CHECK ( bucket_id = 'og_images' );
+
+CREATE POLICY "Allow public update og_images"
+ON storage.objects FOR UPDATE
+USING ( bucket_id = 'og_images' );
+
+SELECT 'Successfully updated RLS policies' as result;

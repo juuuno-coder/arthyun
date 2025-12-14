@@ -1,0 +1,71 @@
+-- [Fix All Permissions & RLS]
+-- 이 스크립트는 테이블 권한(GRANT)과 RLS 정책을 모두 재설정하여 "권한 없음" 오류를 해결합니다.
+-- 관리자 페이지의 SQL 에디터에서 전체를 복사하여 실행해주세요.
+
+-- 1. 포트폴리오 (portfolios) 테이블 설정
+ALTER TABLE public.portfolios ENABLE ROW LEVEL SECURITY;
+
+-- 1-1. 기본 권한 부여 (CRUD 허용)
+GRANT ALL ON public.portfolios TO anon;
+GRANT ALL ON public.portfolios TO authenticated;
+GRANT ALL ON public.portfolios TO service_role;
+
+-- 1-2. RLS 정책 재설정 (모든 사용자 허용)
+DROP POLICY IF EXISTS "Enable read access for all users" ON public.portfolios;
+DROP POLICY IF EXISTS "Enable insert for authenticated users only" ON public.portfolios;
+DROP POLICY IF EXISTS "Enable update for authenticated users only" ON public.portfolios;
+DROP POLICY IF EXISTS "Enable delete for authenticated users only" ON public.portfolios;
+DROP POLICY IF EXISTS "Enable all access for all users" ON public.portfolios;
+DROP POLICY IF EXISTS "Allow All" ON public.portfolios;
+
+CREATE POLICY "Allow All"
+ON public.portfolios
+FOR ALL
+USING (true)
+WITH CHECK (true);
+
+
+-- 2. 사이트 설정 (site_settings) 테이블 설정
+ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
+
+GRANT ALL ON public.site_settings TO anon;
+GRANT ALL ON public.site_settings TO authenticated;
+GRANT ALL ON public.site_settings TO service_role;
+
+DROP POLICY IF EXISTS "Enable all access for all users" ON public.site_settings;
+DROP POLICY IF EXISTS "Allow All" ON public.site_settings;
+
+CREATE POLICY "Allow All"
+ON public.site_settings
+FOR ALL
+USING (true)
+WITH CHECK (true);
+
+
+-- 3. 스토리지 (Storage) 설정
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('og_images', 'og_images', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+-- 3-1. 기존 정책 정리
+DROP POLICY IF EXISTS "Allow public read og_images" ON storage.objects;
+DROP POLICY IF EXISTS "Allow public insert og_images" ON storage.objects;
+DROP POLICY IF EXISTS "Allow public update og_images" ON storage.objects;
+DROP POLICY IF EXISTS "Give me liberty or give me death" ON storage.objects;
+
+-- 3-2. og_images 버킷 정책 재설정
+CREATE POLICY "Allow public read og_images"
+ON storage.objects FOR SELECT
+USING ( bucket_id = 'og_images' );
+
+CREATE POLICY "Allow public insert og_images"
+ON storage.objects FOR INSERT
+WITH CHECK ( bucket_id = 'og_images' );
+
+CREATE POLICY "Allow public update og_images"
+ON storage.objects FOR UPDATE
+USING ( bucket_id = 'og_images' );
+
+
+-- 4. 확인
+SELECT 'All permissions and RLS policies have been successfully reset.' as status;

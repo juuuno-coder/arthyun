@@ -1,0 +1,15 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:3001",
+  "executionArgs": {
+    "projectName": "art-way",
+    "projectPath": "c:\\Users\\주노\\Desktop\\art-way",
+    "testIds": [],
+    "additionalInstruction": "",
+    "envs": {
+      "API_KEY": "sk-user-lEzj8sjSEf-9ppjPgFBlDSc4D-zP2UIbCq8Pl-xIP2ZGtGaMvJeS8FbOAAQMnrncic2JC0bXOcyRxZTifvdUgLJzjzgH7j80bek14G-ww_ESEXB-A6DCsB5plkV1crC3r-o"
+    }
+  }
+}

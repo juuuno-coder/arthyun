@@ -1,0 +1,8 @@
+-- [Add Poster URL Column]
+-- 메인 페이지 설정 테이블에 포스터 이미지 URL 컬럼을 추가합니다.
+-- 관리자 페이지 SQL 에디터에서 실행하세요.
+
+ALTER TABLE public.main_settings 
+ADD COLUMN IF NOT EXISTS poster_url text;
+
+SELECT 'Successfully added poster_url column to main_settings table.' as result;

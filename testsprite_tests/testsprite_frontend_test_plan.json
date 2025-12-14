@@ -1,0 +1,480 @@
+[
+  {
+    "id": "TC001",
+    "title": "Successful login with valid credentials",
+    "description": "Verify that an admin user can log in successfully with valid Supabase Auth credentials.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the login page."
+      },
+      {
+        "type": "action",
+        "description": "Input valid username/email and password."
+      },
+      {
+        "type": "action",
+        "description": "Click the login button."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user is authenticated and redirected to the admin dashboard."
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "Login failure with invalid credentials",
+    "description": "Verify that login fails with invalid username/email or password and proper error message is shown.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the login page."
+      },
+      {
+        "type": "action",
+        "description": "Input invalid username/email and/or password."
+      },
+      {
+        "type": "action",
+        "description": "Click the login button."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify login is rejected and an error message is displayed to the user."
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Admin can list exhibitions",
+    "description": "Verify that an authenticated admin can view a list of all exhibitions in the admin exhibition page.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as an admin user."
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the admin exhibition listing page."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the page displays a list of exhibitions with correct details for each."
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Admin can create a new exhibition",
+    "description": "Verify that an authenticated admin can successfully create a new exhibition with valid input data.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as an admin user."
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the admin exhibition creation page."
+      },
+      {
+        "type": "action",
+        "description": "Fill in exhibition details with valid inputs."
+      },
+      {
+        "type": "action",
+        "description": "Submit the exhibition creation form."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the exhibition is created and appears listed in the admin exhibition list."
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Admin exhibition creation form validation",
+    "description": "Verify that the exhibition creation form validates inputs and displays errors for missing or invalid fields.",
+    "category": "error handling",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the admin exhibition creation page."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to submit the form with missing required fields."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify form does not submit and appropriate validation messages are shown."
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Admin can delete an exhibition with confirmation dialog",
+    "description": "Verify that an admin can delete an exhibition only after confirming the deletion via a modern UI confirmation dialog.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as an admin user."
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the admin exhibition list."
+      },
+      {
+        "type": "action",
+        "description": "Click the delete button on an exhibition entry."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that a modern UI confirmation dialog appears instead of a default browser confirm."
+      },
+      {
+        "type": "action",
+        "description": "Confirm the deletion in the dialog."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the exhibition is removed from the list and no errors occur."
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Admin can list media items",
+    "description": "Verify that an authenticated admin can view a list of all media items on the admin media page.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as admin."
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the admin media listing page."
+      },
+      {
+        "type": "assertion",
+        "description": "Ensure all media items are listed with proper details."
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Admin can create new media item",
+    "description": "Verify that an authenticated admin user can create a new media item successfully with valid inputs.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as admin."
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the admin media creation page."
+      },
+      {
+        "type": "action",
+        "description": "Submit valid media details in the creation form."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the media item is successfully created and listed thereafter."
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Admin media creation form validation",
+    "description": "Verify form validation prevents submission of media creation form with missing or invalid required fields, showing appropriate errors.",
+    "category": "error handling",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the media creation page."
+      },
+      {
+        "type": "action",
+        "description": "Attempt submission with empty or invalid required fields."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify errors prevent form submission and error messages are displayed."
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Admin can delete media item with confirmation dialog",
+    "description": "Verify an admin can delete a media item only after confirming through an improved UI dialog replacing default browser confirm.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in as admin."
+      },
+      {
+        "type": "action",
+        "description": "Navigate to media list page."
+      },
+      {
+        "type": "action",
+        "description": "Click delete on a media item."
+      },
+      {
+        "type": "assertion",
+        "description": "Ensure a modern UI dialog for deletion confirmation appears."
+      },
+      {
+        "type": "action",
+        "description": "Confirm the deletion."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the media item is deleted and no errors occur."
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Public main page displays featured exhibitions slider",
+    "description": "Verify that the public main page shows a slider of exhibitions marked as featured (main slider).",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the public main page."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that a slider is visible containing exhibitions marked as main slider."
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Public main page shows default fallback when no featured exhibitions",
+    "description": "Verify that when no exhibitions are marked as featured, the main page displays a fallback image or default branding.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Ensure no exhibitions are marked as main slider."
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the public main page."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the page displays the fallback image or branding instead of a slider."
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Public archive page lists past exhibitions",
+    "description": "Verify that the public archive page lists all past exhibitions with correct details for browsing.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the public archive page."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that a list of past exhibitions is displayed and details are accurate."
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Public media page lists press releases and media content",
+    "description": "Verify the public media page correctly lists all press releases and related media content for visitor viewing.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Go to the public media page."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm all media content is listed and accessible."
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Mobile navigation hamburger menu and drawer opens below 768px",
+    "description": "Verify that on viewport widths below 768px, a hamburger menu is shown and on clicking it, a navigation drawer opens with navigation links.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Set viewport width to below 768px (mobile screen)."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the hamburger menu icon appears."
+      },
+      {
+        "type": "action",
+        "description": "Click the hamburger menu icon."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a navigation drawer opens with proper links to main pages."
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "Mobile navigation hidden and full menu shows above 768px",
+    "description": "Verify that at screen widths above 768px, the hamburger menu is hidden and full navigation menu is shown instead.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Set viewport width above 768px (desktop screen)."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the hamburger menu icon is not visible and full navigation is displayed."
+      }
+    ]
+  },
+  {
+    "id": "TC017",
+    "title": "File upload displays progress indicator",
+    "description": "Verify that when uploading files during creation of exhibitions or media, a progress indicator is displayed to the user.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to exhibition or media creation page."
+      },
+      {
+        "type": "action",
+        "description": "Start uploading a large media file."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that a progress bar or spinner indicates upload progress."
+      }
+    ]
+  },
+  {
+    "id": "TC018",
+    "title": "Empty states on main and archive pages show fallback images/messages",
+    "description": "Verify that empty states on public main and archive pages show appropriate fallback images or branding and suitable user messages.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Ensure there are no exhibitions available."
+      },
+      {
+        "type": "action",
+        "description": "Navigate to main page and archive page."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify fallback images or branding and messages are displayed to improve user experience."
+      }
+    ]
+  },
+  {
+    "id": "TC019",
+    "title": "Image loading uses optimized techniques",
+    "description": "Verify that images on public and admin pages load efficiently using blur placeholders or skeleton UI to enhance user experience.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to pages with images such as main page slider or exhibition listings."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify placeholders such as blurred images or skeleton loaders appear until images fully load."
+      }
+    ]
+  },
+  {
+    "id": "TC020",
+    "title": "Navigation links do not cause 404 errors",
+    "description": "Verify that all navigation links including new pages like login, signup, mypage, recruit, and submission direct to existing valid pages without 404 errors.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Click on all main navigation links including login, signup, mypage, recruit, submission."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify each page loads successfully without any 404 or error pages."
+      }
+    ]
+  },
+  {
+    "id": "TC021",
+    "title": "Middleware correctly blocks unauthenticated admin access",
+    "description": "Verify that middleware using Supabase Auth prevents unauthenticated users from accessing admin pages.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Attempt to directly navigate to an admin page without logging in."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that access is denied or redirected to login page."
+      }
+    ]
+  },
+  {
+    "id": "TC022",
+    "title": "Automated build and deployment succeeds without errors",
+    "description": "Verify that the project builds and deploys successfully using automated build and deployment processes.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Trigger the automated build and deployment process."
+      },
+      {
+        "type": "assertion",
+        "description": "Ensure the build completes without errors and deployment finishes successfully."
+      }
+    ]
+  }
+]

@@ -1,0 +1,23 @@
+# Query: from "@/src
+# ContextLines: 1
+
+4개 결과 - 4 파일
+
+src\actions\mediaActions.ts:
+  3  
+  4: import { supabase } from "@/lib/supabase";
+  5  import { revalidatePath } from "next/cache";
+
+src\app\admin\media\page.tsx:
+  1  // src/app/media/page.tsx
+  2: import { supabase } from "@/src/lib/supabase";
+  3  import Link from "next/link";
+
+src\app\media\write\page.tsx:
+  1: import MediaForm from "@/src/components/MediaForm";
+  2  
+
+src\components\MediaForm.tsx:
+  3  // 방금 1단계에서 만든 함수를 가져옵니다
+  4: import { createMedia } from "@/src/actions/mediaActions";
+  5  

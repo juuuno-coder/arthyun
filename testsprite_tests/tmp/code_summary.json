@@ -1,0 +1,63 @@
+{
+    "tech_stack": [
+        "TypeScript",
+        "Next.js",
+        "React",
+        "Tailwind CSS",
+        "Supabase"
+    ],
+    "features": [
+        {
+            "name": "Auth",
+            "description": "Authentication using Supabase Auth (Login, Middleware)",
+            "files": [
+                "src/app/login/page.tsx",
+                "src/actions/authActions.ts",
+                "src/middleware.ts"
+            ]
+        },
+        {
+            "name": "Admin Exhibition",
+            "description": "Admin exhibition management (List, Create, Delete)",
+            "files": [
+                "src/app/admin/exhibition/page.tsx",
+                "src/app/admin/exhibition/write/page.tsx",
+                "src/actions/exhibitionActions.ts",
+                "src/components/admin/DeleteExhibitionButton.tsx"
+            ]
+        },
+        {
+            "name": "Admin Media",
+            "description": "Admin media management (List, Create, Delete)",
+            "files": [
+                "src/app/admin/media/page.tsx",
+                "src/app/admin/media/write/page.tsx",
+                "src/actions/mediaActions.ts",
+                "src/components/admin/DeleteMediaButton.tsx"
+            ]
+        },
+        {
+            "name": "Main Page",
+            "description": "Public home page with main slider",
+            "files": [
+                "src/app/page.tsx",
+                "src/components/MainSlider.tsx"
+            ]
+        },
+        {
+            "name": "Archive Page",
+            "description": "Public archive page listing exhibitions",
+            "files": [
+                "src/app/archive/page.tsx",
+                "src/components/ArchiveClient.tsx"
+            ]
+        },
+        {
+            "name": "Media Page",
+            "description": "Public media page listing press releases",
+            "files": [
+                "src/app/media/page.tsx"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,6 @@
+-- [Find Logo Files]
+-- Find any files with 'logo' in their name in the storage buckets
+SELECT name, id, bucket_id, created_at
+FROM storage.objects
+WHERE name ILIKE '%logo%'
+LIMIT 20;

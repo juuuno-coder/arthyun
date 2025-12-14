@@ -1,0 +1,76 @@
+-- [COMPLETE SYSTEM FIX]
+-- 이 스크립트 하나만 실행하면 모든 테이블 생성, 권한 설정, RLS 문제가 해결됩니다.
+-- Supabase SQL Editor에 복사 후 Run 버튼을 눌러주세요.
+
+-- ==========================================
+-- 1. 메인 페이지 설정 (main_settings) 테이블 생성
+-- ==========================================
+CREATE TABLE IF NOT EXISTS public.main_settings (
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    youtube_url text NULL,
+    center_text text NULL,
+    created_at timestamptz NULL DEFAULT now(),
+    updated_at timestamptz NULL DEFAULT now(),
+    CONSTRAINT main_settings_pkey PRIMARY KEY (id)
+);
+
+-- 초기 데이터 삽입 (없을 경우에만)
+INSERT INTO public.main_settings (youtube_url, center_text)
+SELECT 'https://www.youtube.com/watch?v=AMlZ14j5DtQ', ''
+WHERE NOT EXISTS (SELECT 1 FROM public.main_settings);
+
+-- 권한 부여 (CRUD)
+ALTER TABLE public.main_settings ENABLE ROW LEVEL SECURITY;
+GRANT ALL ON public.main_settings TO anon;
+GRANT ALL ON public.main_settings TO authenticated;
+GRANT ALL ON public.main_settings TO service_role;
+
+-- RLS 정책 설정 (모든 접근 허용)
+DROP POLICY IF EXISTS "Allow All" ON public.main_settings;
+CREATE POLICY "Allow All" ON public.main_settings FOR ALL USING (true) WITH CHECK (true);
+
+
+-- ==========================================
+-- 2. 포트폴리오 (portfolios) 권한 재설정
+-- ==========================================
+ALTER TABLE public.portfolios ENABLE ROW LEVEL SECURITY;
+GRANT ALL ON public.portfolios TO anon;
+GRANT ALL ON public.portfolios TO authenticated;
+GRANT ALL ON public.portfolios TO service_role;
+
+DROP POLICY IF EXISTS "Allow All" ON public.portfolios;
+CREATE POLICY "Allow All" ON public.portfolios FOR ALL USING (true) WITH CHECK (true);
+
+
+-- ==========================================
+-- 3. 사이트 설정 (site_settings) 권한 재설정
+-- ==========================================
+ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
+GRANT ALL ON public.site_settings TO anon;
+GRANT ALL ON public.site_settings TO authenticated;
+GRANT ALL ON public.site_settings TO service_role;
+
+DROP POLICY IF EXISTS "Allow All" ON public.site_settings;
+CREATE POLICY "Allow All" ON public.site_settings FOR ALL USING (true) WITH CHECK (true);
+
+
+-- ==========================================
+-- 4. 스토리지 (Storage) 권한 재설정
+-- ==========================================
+-- 버킷 생성
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('og_images', 'og_images', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+-- 기존 정책 정리
+DROP POLICY IF EXISTS "Allow public read og_images" ON storage.objects;
+DROP POLICY IF EXISTS "Allow public insert og_images" ON storage.objects;
+DROP POLICY IF EXISTS "Allow public update og_images" ON storage.objects;
+
+-- 정책 재설정
+CREATE POLICY "Allow public read og_images" ON storage.objects FOR SELECT USING ( bucket_id = 'og_images' );
+CREATE POLICY "Allow public insert og_images" ON storage.objects FOR INSERT WITH CHECK ( bucket_id = 'og_images' );
+CREATE POLICY "Allow public update og_images" ON storage.objects FOR UPDATE USING ( bucket_id = 'og_images' );
+
+
+SELECT 'System repair complete. All tables and permissions are ready.' as status;
