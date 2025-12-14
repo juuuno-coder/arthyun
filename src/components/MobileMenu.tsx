@@ -48,9 +48,9 @@ export default function MobileMenu() {
                 <Link href="/portfolio" onClick={closeMenu} className="hover:text-blue-600 transition-colors uppercase tracking-[0.2em] font-medium text-xl">
                     PORTFOLIO
                 </Link>
-                <Link href="/archive" onClick={closeMenu} className="hover:text-blue-600 transition-colors uppercase tracking-[0.2em] font-medium text-xl">
+                {/* <Link href="/archive" onClick={closeMenu} className="hover:text-blue-600 transition-colors uppercase tracking-[0.2em] font-medium text-xl">
                     ARCHIVE
-                </Link>
+                </Link> */}
                 <Link href="/media" onClick={closeMenu} className="hover:text-blue-600 transition-colors uppercase tracking-[0.2em] font-medium text-xl">
                     MEDIA
                 </Link>
