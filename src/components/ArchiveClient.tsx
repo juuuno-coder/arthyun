@@ -264,7 +264,8 @@ export default function ArchiveClient({ initialData }: { initialData: any[] }) {
             
             <div className="absolute top-6 right-6 flex items-center gap-2 z-10">
               <div className="flex items-center gap-2">
-                {isAdmin && (
+                {/* Admin Tools Hidden by Request */}
+                {/* {isAdmin && (
                     <>
                       {selectedExhibition.source === 'portfolio' && (
                           <Button 
@@ -281,7 +282,7 @@ export default function ArchiveClient({ initialData }: { initialData: any[] }) {
                         onUpdate={(newContent) => setSelectedExhibition((prev: any) => prev ? ({...prev, description: newContent}) : null)}
                       />
                     </>
-                )}
+                )} */}
               </div>
               <button
                 onClick={() => setSelectedExhibition(null)}
