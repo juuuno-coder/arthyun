@@ -14,14 +14,20 @@ interface EditorProps {
   initialContent?: string;
 }
 
+import { compressImage } from "@/utils/compressImage";
+
 // Google Deepmind style: Reusable upload logic
 async function uploadImageToFirebase(file: File) {
-  const fileExt = file.name.split(".").pop();
+  // 1. Compress Image
+  const compressedFile = await compressImage(file);
+  
+  // 2. Upload
+  const fileExt = compressedFile.name.split(".").pop();
   const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
   
   try {
     const storageRef = ref(storage, `editor/${fileName}`);
-    await uploadBytes(storageRef, file);
+    await uploadBytes(storageRef, compressedFile);
     return await getDownloadURL(storageRef);
   } catch (error) {
     console.error("Error uploading image:", error);
