@@ -214,49 +214,39 @@ export default function ArchiveClient({ initialData }: { initialData: any[] }) {
 
       </div>
 
-      {/* 1. Exhibition Grid */}
+      {/* 1. Exhibition Grid (Instagram Style) */}
       {filteredData.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-16 animate-fade-in">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-4 animate-fade-in">
             {filteredData.map((item) => (
             <div
                 key={item.id}
-                className="group cursor-pointer"
+                className="group relative cursor-pointer aspect-square bg-gray-100 overflow-hidden"
                 onClick={() => setSelectedExhibition(item)}
             >
-                <div className="relative aspect-[3/4] overflow-hidden bg-gray-50 mb-5 shadow-sm border border-gray-100/50">
-                {/* Poster Image (Lazy Loaded) */}
+                {/* Poster Image (Cover) */}
                 {item.poster_url ? (
                     <img
                     loading="lazy"
                     src={item.poster_url}
                     alt={item.title}
-                    className="w-full h-full object-contain group-hover:scale-105 transition duration-700 ease-out"
+                    className="w-full h-full object-cover transition duration-500 group-hover:scale-105"
                     />
                 ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center text-gray-300 gap-2">
                         <div className="w-8 h-8 border border-gray-200 rounded-full"></div>
-                        <span className="text-[10px] tracking-widest">NO IMAGE</span>
                     </div>
                 )}
 
-                {/* Hover Overlay */}
-                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[1px]">
-                    <span className="text-white border border-white/80 bg-black/20 px-6 py-2 text-xs tracking-[0.2em] font-light backdrop-blur-md">
-                    VIEW
-                    </span>
-                </div>
-                </div>
-
-                <div className="space-y-1">
-                    <p className="text-xs font-bold text-blue-600 tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity -translate-y-2 group-hover:translate-y-0 duration-300 block h-4">
-                        {item.source === 'portfolio' ? 'ARCHIVE' : 'EXHIBITION'}
-                    </p>
-                    <h3 className="text-lg font-serif font-bold text-gray-900 group-hover:text-black transition leading-tight">
-                        {item.title}
-                    </h3>
-                    <p className="text-sm text-gray-500 font-medium">
-                        {item.artist || item.subtitle}
-                    </p>
+                {/* Hover Overlay (Instagram Style) */}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center backdrop-blur-[2px]">
+                    <div className="text-center text-white px-4">
+                         <h3 className="text-sm font-bold line-clamp-1 mb-1">
+                             {item.title}
+                         </h3>
+                         <p className="text-xs opacity-80 font-light">
+                             {item.category}
+                         </p>
+                    </div>
                 </div>
             </div>
             ))}
