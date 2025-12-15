@@ -22,6 +22,10 @@ export default function SettingsFormClient({ settings }: { settings: Settings | 
   const [instagramUserId, setInstagramUserId] = useState(settings?.instagram_user_id || "");
   const [isInstagramActive, setIsInstagramActive] = useState(settings?.is_instagram_active || false);
 
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(settings?.og_image_url || null);
+  const [loading, setLoading] = useState(false);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
