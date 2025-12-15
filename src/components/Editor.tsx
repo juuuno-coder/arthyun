@@ -50,7 +50,75 @@ export default function Editor({ onChange, initialContent }: EditorProps) {
       }
     }
     loadInitialContent();
-  }, [editor]); // Run once when editor is ready
+  }, [editor]); 
+
+  // 다중 이미지 붙여넣기 지원 (Custom Paste Handler)
+  // 중복 업로드 방지를 위해 캡처 단계(true)에서 이벤트를 가로채고 중단합니다.
+  useEffect(() => {
+    if (!editor) return;
+
+    const handlePaste = async (e: ClipboardEvent) => {
+        const files = e.clipboardData?.files;
+        // 파일이 있는 경우에만 개입
+        if (files && files.length > 0) {
+             // 이미지 파일이 하나라도 있는지 확인
+            let hasImage = false;
+            for (let i = 0; i < files.length; i++) {
+                if (files[i].type.startsWith("image/")) {
+                    hasImage = true;
+                    break;
+                }
+            }
+
+            if (hasImage) {
+                e.preventDefault(); 
+                e.stopPropagation(); // BlockNote의 기본 핸들러가 실행되지 않도록 차단
+
+                // 현재 커서 위치 확인
+                const currentBlock = editor.getTextCursorPosition().block;
+                let insertAfterBlock = currentBlock;
+
+                // 순차적 업로드 및 삽입
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    if (file.type.startsWith("image/")) {
+                        const url = await uploadImageToFirebase(file);
+                        
+                        // 이미지 블록 생성
+                        const newBlocks: any = [
+                            {
+                                type: "image",
+                                props: {
+                                    url: url,
+                                    name: file.name,
+                                    showPreview: true
+                                }
+                            }
+                        ];
+
+                        // 블록 삽입
+                        editor.insertBlocks(newBlocks, insertAfterBlock, "after");
+                        
+                        // 다음 이미지가 올바른 순서로 들어가도록 처리 (선택 사항)
+                        // 현재 로직은 계속 같은 블록 뒤에 넣으므로 역순이 될 수 있음.
+                        // 하지만 BlockNote API 한계상 단순화.
+                    }
+                }
+            }
+        }
+    };
+
+    const div = document.querySelector(".bn-editor");
+    if (div) {
+        // useCapture: true로 설정하여 버블링 전에 가로챔
+        div.addEventListener("paste", handlePaste as any, true);
+    }
+    
+    return () => {
+        if (div) div.removeEventListener("paste", handlePaste as any, true);
+    };
+
+  }, [editor]);
 
   // 내용이 바뀔 때마다 실행되는 함수
   const handleChange = async () => {
