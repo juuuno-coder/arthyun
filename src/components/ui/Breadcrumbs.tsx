@@ -7,7 +7,7 @@ import { ChevronRight, Home } from "lucide-react";
 export default function Breadcrumbs() {
   const pathname = usePathname();
   
-  if (pathname === "/") return null;
+  if (!pathname || pathname === "/") return null;
   if (pathname.startsWith("/admin")) return null;
   if (pathname.startsWith("/login")) return null;
 
