@@ -10,14 +10,17 @@ type Settings = {
   id: number;
   og_description: string | null;
   og_image_url: string | null;
+  instagram_access_token?: string;
+  instagram_user_id?: string;
+  is_instagram_active?: boolean;
 };
 
 export default function SettingsFormClient({ settings }: { settings: Settings | null }) {
   const [description, setDescription] = useState(settings?.og_description || "");
   const [imageUrl, setImageUrl] = useState(settings?.og_image_url || "");
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(settings?.og_image_url || null);
-  const [loading, setLoading] = useState(false);
+  const [instagramToken, setInstagramToken] = useState(settings?.instagram_access_token || "");
+  const [instagramUserId, setInstagramUserId] = useState(settings?.instagram_user_id || "");
+  const [isInstagramActive, setIsInstagramActive] = useState(settings?.is_instagram_active || false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -34,6 +37,10 @@ export default function SettingsFormClient({ settings }: { settings: Settings | 
 
     const formData = new FormData();
     formData.append("description", description);
+    formData.append("instagramToken", instagramToken);
+    formData.append("instagramUserId", instagramUserId);
+    formData.append("isInstagramActive", String(isInstagramActive));
+
     if (file) {
       formData.append("image", file);
     }
@@ -59,56 +66,116 @@ export default function SettingsFormClient({ settings }: { settings: Settings | 
         오픈 그래프 (공유 썸네일) 설정
       </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-8">
-        {/* 미리보기 영역 */}
-        <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">미리보기 (1200 x 630 권장)</label>
-            <div className="relative aspect-[1.91/1] w-full bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg overflow-hidden flex items-center justify-center group">
-                {preview ? (
-                    <img 
-                        src={preview} 
-                        alt="OG Preview" 
-                        className="w-full h-full object-cover"
+      <form onSubmit={handleSubmit} className="space-y-12">
+        {/* 기존 OG 설정 */}
+        <div className="space-y-8">
+            {/* 미리보기 영역 */}
+            <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">미리보기 (1200 x 630 권장)</label>
+                <div className="relative aspect-[1.91/1] w-full bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg overflow-hidden flex items-center justify-center group">
+                    {preview ? (
+                        <img 
+                            src={preview} 
+                            alt="OG Preview" 
+                            className="w-full h-full object-cover"
+                        />
+                    ) : (
+                        <div className="text-center text-gray-400">
+                            <Upload className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                            <p>이미지가 없습니다</p>
+                        </div>
+                    )}
+                    
+                    <input 
+                        type="file" 
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                     />
-                ) : (
-                    <div className="text-center text-gray-400">
-                        <Upload className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                        <p>이미지가 없습니다</p>
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white font-medium pointer-events-none">
+                        클릭 또는 드래그하여 이미지 변경
                     </div>
-                )}
-                
-                <input 
-                    type="file" 
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                />
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white font-medium pointer-events-none">
-                    클릭 또는 드래그하여 이미지 변경
                 </div>
+                <p className="text-xs text-gray-400">
+                    * 카카오톡, 페이스북 등 링크 공유 시 보여질 이미지입니다.
+                </p>
             </div>
-            <p className="text-xs text-gray-400">
-                * 카카오톡, 페이스북 등 링크 공유 시 보여질 이미지입니다.
-            </p>
+
+            {/* 설명 입력 */}
+            <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">공유 설명 문구</label>
+                <input 
+                    type="text" 
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="예: 부산 동구의 현대미술 갤러리 Artway입니다."
+                    className="w-full border rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-black"
+                />
+            </div>
         </div>
 
-        {/* 설명 입력 */}
-        <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">공유 설명 문구</label>
-            <input 
-                type="text" 
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="예: 부산 동구의 현대미술 갤러리 Artway입니다."
-                className="w-full border rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-black"
-            />
+        <hr className="border-gray-200" />
+
+        {/* 🚀 인스타그램 연동 설정 */}
+        <div>
+            <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-pink-600">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                인스타그램 연동
+            </h2>
+            
+            <div className="bg-gray-50 p-6 rounded-lg space-y-6">
+                <div className="flex items-center space-x-2">
+                    <input
+                        type="checkbox"
+                        id="insta-active"
+                        checked={isInstagramActive}
+                        onChange={(e) => setIsInstagramActive(e.target.checked)}
+                        className="w-5 h-5 accent-pink-600"
+                    />
+                    <label htmlFor="insta-active" className="font-bold text-gray-900 cursor-pointer">
+                        인스타그램 연동 활성화
+                    </label>
+                </div>
+
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">Access Token (액세스 토큰)</label>
+                        <input 
+                            type="password" 
+                            value={instagramToken}
+                            onChange={(e) => setInstagramToken(e.target.value)}
+                            placeholder="Meta Developer 센터에서 발급받은 Long-lived Token"
+                            className="w-full border rounded-md p-3 text-sm font-mono bg-white focus:outline-none focus:ring-2 focus:ring-pink-500"
+                        />
+                        <p className="text-xs text-gray-500">* 보안상 ID/비밀번호 대신 공식 Access Token을 사용합니다.</p>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">User ID (선택사항)</label>
+                        <input 
+                            type="text" 
+                            value={instagramUserId}
+                            onChange={(e) => setInstagramUserId(e.target.value)}
+                            placeholder="숫자로 된 User ID (입력하지 않으면 토큰으로 자동 조회 시도)"
+                            className="w-full border rounded-md p-3 text-sm font-mono bg-white focus:outline-none focus:ring-2 focus:ring-pink-500"
+                        />
+                    </div>
+                </div>
+
+                {isInstagramActive && (
+                    <div className="bg-yellow-50 border border-yellow-200 p-4 rounded text-sm text-yellow-800">
+                        ⚠ <strong>주의사항:</strong> 연동 활성화 시 포트폴리오 목록이 인스타그램 피드로 대체됩니다.
+                        (60일마다 토큰 갱신이 필요할 수 있습니다.)
+                    </div>
+                )}
+            </div>
         </div>
 
         {/* 저장 버튼 */}
-        <div className="flex justify-end">
-            <Button type="submit" disabled={loading} size="lg">
+        <div className="flex justify-end pt-6 border-t">
+            <Button type="submit" disabled={loading} size="lg" className="bg-black text-white hover:bg-gray-800">
                 <Save className="w-4 h-4 mr-2" />
-                {loading ? "저장 중..." : "설정 저장"}
+                {loading ? "저장 중..." : "모든 설정 저장"}
             </Button>
         </div>
       </form>

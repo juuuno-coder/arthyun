@@ -47,11 +47,18 @@ export async function updateSiteSettings(formData: FormData) {
       imageUrl = await getDownloadURL(storageRef);
     }
 
+    const instagramToken = formData.get("instagramToken") as string;
+    const instagramUserId = formData.get("instagramUserId") as string;
+    const isInstagramActive = formData.get("isInstagramActive") === "true";
+
     // DB 업데이트
     await setDoc(doc(db, "site_settings", "1"), {
-        id: "1", // Ensure ID is string to match likely expectations
+        id: "1", 
         og_description: description,
         og_image_url: imageUrl,
+        instagram_access_token: instagramToken || null,
+        instagram_user_id: instagramUserId || null,
+        is_instagram_active: isInstagramActive,
         updated_at: new Date().toISOString(),
     }, { merge: true });
 
