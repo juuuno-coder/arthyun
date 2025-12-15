@@ -208,7 +208,7 @@ export default function ArchiveClient({ initialData }: { initialData: any[] }) {
                 onClick={() => handleSortClick("name")}
                 className={`text-xs px-2 py-1 transition-colors flex items-center gap-1 ${sortType === "name" ? "font-bold text-black border-b border-black" : "text-gray-400 hover:text-black"}`}
             >
-                가나다순 {sortType === "name" && (sortOrder === "asc" ? "↑" : "↓")}
+                이름순 {sortType === "name" && (sortOrder === "asc" ? "↑" : "↓")}
             </button>
         </div>
 
