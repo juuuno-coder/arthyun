@@ -1,5 +1,6 @@
 // src/app/media/[id]/page.tsx
-import { supabase } from "@/lib/supabase";
+import { db } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -15,17 +16,23 @@ interface Props {
 }
 
 export default async function MediaDetailPage({ params }: Props) {
-  const { id } = await params; // Next.js 16: params를 await로 unwrap
+  const { id } = await params;
 
-  // 1. DB에서 ID로 게시물 찾기
-  const { data: post, error } = await supabase
-    .from("media_releases")
-    .select("*")
-    .eq("id", id)
-    .single();
+  // 1. Fetch from Firestore
+  let post: any = null;
+  try {
+      const docRef = doc(db, "media_releases", id);
+      const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists()) {
+          post = { id: docSnap.id, ...docSnap.data() };
+      }
+  } catch (e) {
+      console.error("Firebase fetch error:", e);
+  }
 
-  // 2. 데이터가 없거나 에러나면 404 처리
-  if (error || !post) {
+  // 2. 404 if not found
+  if (!post) {
     notFound();
   }
 
