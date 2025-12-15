@@ -1,14 +1,13 @@
 import { MetadataRoute } from 'next';
-import { createClient } from '@supabase/supabase-js';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, query, select, orderBy } from 'firebase/firestore';
 
 const BASE_URL = 'https://arthyun.co.kr';
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+export const revalidate = 3600; // Revalidate every hour
 
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  
   // 1. Static Routes
   const routes: MetadataRoute.Sitemap = [
     {
@@ -21,12 +20,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${BASE_URL}/about`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${BASE_URL}/archive`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
       priority: 0.8,
     },
     {
@@ -55,37 +48,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // 2. Dynamic Portfolios
-  const { data: portfolios } = await supabase
-    .from('portfolios')
-    .select('id, updated_at')
-    .eq('is_visible', true);
+  // 2. Dynamic Media (Fetch from Firestore)
+  try {
+      // Note: In Client SDK, we fetch full docs. Optimization: limit fields if possible or just fetch all
+      // Firestore Client SDK doesn't support 'select' fields easily without downloading document.
+      // Given the size, it's acceptable for sitemap generation.
+      const q = query(collection(db, "media_releases"));
+      const querySnapshot = await getDocs(q);
 
-  if (portfolios) {
-    portfolios.forEach((item) => {
-      routes.push({
-        url: `${BASE_URL}/portfolio/${item.id}`,
-        lastModified: new Date(item.updated_at || new Date()),
-        changeFrequency: 'monthly',
-        priority: 0.7,
+      querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          routes.push({
+            url: `${BASE_URL}/media/${doc.id}`,
+            lastModified: data.created_at ? new Date(data.created_at) : new Date(),
+            changeFrequency: 'monthly',
+            priority: 0.6,
+          });
       });
-    });
-  }
-
-  // 3. Dynamic Media
-  const { data: media } = await supabase
-    .from('media_releases')
-    .select('id, created_at');
-
-  if (media) {
-    media.forEach((item) => {
-      routes.push({
-        url: `${BASE_URL}/media/${item.id}`,
-        lastModified: new Date(item.created_at || new Date()),
-        changeFrequency: 'monthly',
-        priority: 0.6,
-      });
-    });
+  } catch (e) {
+      console.error("Sitemap generation error (Firebase):", e);
   }
 
   return routes;
