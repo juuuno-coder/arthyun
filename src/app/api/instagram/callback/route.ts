@@ -16,7 +16,8 @@ export async function GET(request: Request) {
   try {
     const clientId = process.env.INSTAGRAM_CLIENT_ID || "651498561285702";
     const clientSecret = process.env.INSTAGRAM_CLIENT_SECRET || "298d89a30d43c218254472474e440cb3";
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://arthyun.co.kr";
+    // Force non-www to match Facebook Settings exactly
+    const appUrl = "https://arthyun.co.kr";
     const redirectUri = `${appUrl}/api/instagram/callback`;
 
     // 1. Exchange Code for Short Token
