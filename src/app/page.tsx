@@ -27,7 +27,7 @@ export default async function HomePage() {
     }
 
     return (
-        <div className="relative w-full h-screen overflow-hidden bg-black">
+        <div className="relative w-full aspect-video bg-black overflow-hidden">
             {/* 배경 비디오 (항상 표시) */}
             <MainBackground youtubeUrl={mainSettings?.youtube_url} />
 
