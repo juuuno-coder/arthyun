@@ -12,7 +12,32 @@ export const revalidate = 60;
 
 export default async function HomePage() {
   try {
-    const slides: any[] = []; // 메인 슬라이더 임시 비활성화 (전시 기능 삭제됨)
+    const slides: any[] = []; 
+
+    // 1. Fetch Featured Portfolios for Main Slider
+    try {
+        const q = query(
+            collection(db, "portfolios"),
+            where("is_featured", "==", true)
+        );
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+            snap.docs.forEach(doc => {
+                 const data = doc.data();
+                 slides.push({
+                     id: doc.id,
+                     ...data,
+                     // Map Portfolio fields to MainSlider expected fields
+                     poster_url: data.thumbnail_url, 
+                     artist: data.client || data.artist || "ART HYUN",
+                     start_date: data.completion_date || data.created_at?.substring(0, 10),
+                     end_date: null 
+                 });
+            });
+        }
+    } catch (e) {
+        console.error("Firebase featured portfolios fetch error:", e);
+    }
 
     // 2. 메인 설정 가져오기 (배경, 텍스트)
     let mainSettings: any = null;
