@@ -45,26 +45,18 @@ export default function WritePortfolioPage() {
 
             // 1. Upload Thumbnail (Client-side)
             if (thumbnailFile) {
-                console.log("Starting image upload..."); // DEBUG
                 // 압축 적용
-                console.log("Compressing image..."); // DEBUG
                 const compressedFile = await compressImage(thumbnailFile);
-                console.log("Compressed file:", compressedFile); // DEBUG
                 
                 const fileName = `portfolio/${Date.now()}.webp`;
                 const storageRef = ref(storage, `og_images/${fileName}`);
                 
-                console.log("Uploading bytes to:", storageRef.fullPath); // DEBUG
-                const snapshot = await uploadBytes(storageRef, compressedFile);
-                console.log("Upload snapshot:", snapshot); // DEBUG
+                await uploadBytes(storageRef, compressedFile);
 
-                console.log("Getting download URL..."); // DEBUG
                 thumbnailUrl = await getDownloadURL(storageRef);
-                console.log("Thumbnail URL:", thumbnailUrl); // DEBUG
             }
 
             // 2. Create Document in Firestore (Client-side)
-            console.log("Creating Firestore document..."); // DEBUG
             const docData = {
                 title,
                 client,
@@ -78,10 +70,8 @@ export default function WritePortfolioPage() {
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
             };
-            console.log("Document Data:", docData); // DEBUG
 
             const docRef = await addDoc(collection(db, "portfolios"), docData);
-            console.log("Document Created with ID:", docRef.id); // DEBUG
             
             toast.success("포트폴리오가 등록되었습니다.");
             alert("성공적으로 등록되었습니다!"); // 명시적 알림
@@ -89,7 +79,7 @@ export default function WritePortfolioPage() {
             router.refresh(); // Refresh Client Cache
             
         } catch (error: any) {
-            console.error("Submission Error:", error); // DEBUG
+            console.error("Submission Error:", error);
             alert(`등록 실패 상세 에러: ${error.message} \n (콘솔 로그를 확인해주세요)`);
             toast.error("등록 실패: " + error.message);
         } finally {
