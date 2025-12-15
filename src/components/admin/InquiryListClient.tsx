@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createBrowserClient } from "@supabase/ssr";
+// import { createBrowserClient } from "@supabase/ssr";
 import { 
   Table, 
   TableBody, 
@@ -45,28 +45,31 @@ export default function InquiryListClient({ initialInquiries }: { initialInquiri
   const [filter, setFilter] = useState("all"); // all, new, exhibition, general
   const [updating, setUpdating] = useState(false);
 
-  // Supabase Client
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-
-  // 상태 변경 함수
+  // No Supabase Client needed
+  // Instead use Server Actions or Client DB SDK? 
+  // Since we are client-side only here for simplicity (though Server Action is better), 
+  // let's use Firebase Client SDK (import db).
+  // Ideally, use a Server Action, but for speed to fix user issue, direct SDK is fine if rules allow.
+  // Actually, let's create a server action if we want to be clean, but user wants it fixed now.
+  // Let's use direct client SDK update.
+  
   const updateStatus = async (id: string, newStatus: "new" | "read" | "done") => {
     setUpdating(true);
-    const { error } = await supabase
-      .from("inquiries")
-      .update({ status: newStatus })
-      .eq("id", id);
-    
-    if (!error) {
-      setInquiries((prev) =>
-        prev.map((item) => (item.id === id ? { ...item, status: newStatus } : item))
-      );
-      if (selectedInquiry?.id === id) {
-        setSelectedInquiry({ ...selectedInquiry, status: newStatus });
-      }
-    } else {
+    // Dynamic import to avoid server-side issues (though this is "use client")
+    const { doc, updateDoc } = await import("firebase/firestore");
+    const { db } = await import("@/lib/firebase");
+
+    try {
+        const docRef = doc(db, "inquiries", id);
+        await updateDoc(docRef, { status: newStatus });
+        
+        setInquiries((prev) =>
+            prev.map((item) => (item.id === id ? { ...item, status: newStatus } : item))
+        );
+        if (selectedInquiry?.id === id) {
+            setSelectedInquiry({ ...selectedInquiry, status: newStatus });
+        }
+    } catch (error: any) {
         alert("업데이트 실패: " + error.message);
     }
     setUpdating(false);

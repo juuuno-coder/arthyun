@@ -1,18 +1,29 @@
 
-import { supabase } from "@/lib/supabase";
+import { db } from "@/lib/firebase";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import InquiryListClient from "@/components/admin/InquiryListClient";
 
 // 캐싱 방지 (실시간 확인 필요)
 export const dynamic = "force-dynamic";
 
 export default async function AdminInquiryPage() {
-  const { data: inquiries, error } = await supabase
-    .from("inquiries")
-    .select("*")
-    .order("created_at", { ascending: false });
+  let inquiries: any[] = [];
+  let errorMsg = null;
 
-  if (error) {
-    return <div className="p-8 text-red-500">데이터 로드 실패: {error.message}</div>;
+  try {
+      const q = query(
+          collection(db, "inquiries"),
+          orderBy("created_at", "desc")
+      );
+      const snap = await getDocs(q);
+      inquiries = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error: any) {
+      console.error("Firebase fetch error:", error);
+      errorMsg = error.message;
+  }
+
+  if (errorMsg) {
+    return <div className="p-8 text-red-500">데이터 로드 실패: {errorMsg}</div>;
   }
 
   return (
@@ -24,7 +35,7 @@ export default async function AdminInquiryPage() {
         </div>
       </div>
 
-      <InquiryListClient initialInquiries={inquiries || []} />
+      <InquiryListClient initialInquiries={inquiries} />
     </div>
   );
 }
