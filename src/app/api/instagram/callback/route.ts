@@ -14,9 +14,10 @@ export async function GET(request: Request) {
   }
 
   try {
-    const clientId = process.env.INSTAGRAM_CLIENT_ID;
-    const clientSecret = process.env.INSTAGRAM_CLIENT_SECRET;
-    const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/instagram/callback`;
+    const clientId = process.env.INSTAGRAM_CLIENT_ID || "651498561285702";
+    const clientSecret = process.env.INSTAGRAM_CLIENT_SECRET || "298d89a30d43c218254472474e440cb3";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://arthyun.co.kr";
+    const redirectUri = `${appUrl}/api/instagram/callback`;
 
     // 1. Exchange Code for Short Token
     const tokenUrl = `https://graph.facebook.com/v21.0/oauth/access_token?client_id=${clientId}&redirect_uri=${redirectUri}&client_secret=${clientSecret}&code=${code}`;
