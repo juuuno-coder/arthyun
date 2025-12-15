@@ -12,7 +12,8 @@ export async function getSiteSettings() {
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      return docSnap.data();
+      // Cast to any to avoid TypeScript build errors in strict mode
+      return { id: docSnap.id, ...docSnap.data() } as any;
     } else {
       return null;
     }
@@ -48,7 +49,7 @@ export async function updateSiteSettings(formData: FormData) {
 
     // DB 업데이트
     await setDoc(doc(db, "site_settings", "1"), {
-        id: 1,
+        id: "1", // Ensure ID is string to match likely expectations
         og_description: description,
         og_image_url: imageUrl,
         updated_at: new Date().toISOString(),
