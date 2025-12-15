@@ -9,41 +9,81 @@ export const dynamic = "force-dynamic";
 
 export default async function PortfolioPage() {
   
-  // 1. Fetch new portfolios data from Firestore
-  let portfolios: any[] = [];
+  // 0. Fetch Site Settings for Instagram Config
+  let settings: any = null;
+  let instagramData: any[] | null = null;
+  
   try {
-      const q = query(
-          collection(db, "portfolios"), 
-          where("is_visible", "==", true)
-      );
-      
-      const querySnapshot = await getDocs(q);
-      portfolios = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const settingsDoc = await getDocs(query(collection(db, "site_settings")));
+      if (!settingsDoc.empty) {
+          settings = settingsDoc.docs[0].data();
+      }
   } catch (e) {
-      console.error("Firebase fetch error:", e);
+      console.error("Settings fetch error:", e);
   }
 
-  // 2. Transform to match ArchiveClient interface
-  const formattedData = portfolios.map((item) => ({
-    id: item.id,
-    title: item.title,
-    artist: item.artist || item.client || "ART HYUN",
-    start_date: item.completion_date,
-    end_date: null, 
-    poster_url: item.thumbnail_url || extractFirstImage(item.description),
-    description: item.description,
-    source: "portfolio",
-    category: item.category,
-    created_at: item.created_at // Pass created_at for fallback sort
-  }));
+  // 1. Attempt Instagram Fetch if active
+  if (settings?.is_instagram_active && settings?.instagram_access_token) {
+      const { fetchInstagramFeed } = await import("@/actions/instagramActions");
+      const igItems = await fetchInstagramFeed(settings.instagram_access_token);
+      
+      if (igItems && Array.isArray(igItems)) {
+          instagramData = igItems.map((item: any) => ({
+              id: item.id,
+              title: item.caption ? item.caption.split('\n')[0].substring(0, 50) + (item.caption.length > 50 ? "..." : "") : "No Title",
+              artist: "@" + item.username,
+              start_date: item.timestamp,
+              end_date: null,
+              poster_url: item.media_type === "VIDEO" ? item.thumbnail_url : item.media_url,
+              description: item.caption || "",
+              source: "instagram",
+              category: "Instagram", // Note: This might need handling in filter
+              created_at: item.timestamp,
+              permalink: item.permalink // Extra field for linking to IG
+          }));
+      }
+  }
 
-  // Sort manually
-  // Logic: Use completion_date (start_date) if exists, otherwise created_at for sorting
-  formattedData.sort((a, b) => {
-      const dateA = a.start_date ? new Date(a.start_date).getTime() : (a.created_at ? new Date(a.created_at).getTime() : 0);
-      const dateB = b.start_date ? new Date(b.start_date).getTime() : (b.created_at ? new Date(b.created_at).getTime() : 0);
-      return dateB - dateA;
-  });
+  let formattedData: any[] = [];
+
+  // 2. Logic Branch: Use Instagram if available, else Firestore
+  if (instagramData) {
+      formattedData = instagramData;
+  } else {
+      // Fallback to Firestore (Existing Logic)
+      let portfolios: any[] = [];
+      try {
+          const q = query(
+              collection(db, "portfolios"), 
+              where("is_visible", "==", true)
+          );
+          
+          const querySnapshot = await getDocs(q);
+          portfolios = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      } catch (e) {
+          console.error("Firebase fetch error:", e);
+      }
+
+      formattedData = portfolios.map((item) => ({
+        id: item.id,
+        title: item.title,
+        artist: item.artist || item.client || "ART HYUN",
+        start_date: item.completion_date,
+        end_date: null, 
+        poster_url: item.thumbnail_url || extractFirstImage(item.description),
+        description: item.description,
+        source: "portfolio",
+        category: item.category,
+        created_at: item.created_at
+      }));
+
+      // Sort Firestore data (IG is usually already sorted by date, but formattedData needs sorting if mixed, but here it's eitehr/or)
+      formattedData.sort((a, b) => {
+          const dateA = a.start_date ? new Date(a.start_date).getTime() : (a.created_at ? new Date(a.created_at).getTime() : 0);
+          const dateB = b.start_date ? new Date(b.start_date).getTime() : (b.created_at ? new Date(b.created_at).getTime() : 0);
+          return dateB - dateA;
+      });
+  }
 
   return (
     <div className="min-h-screen bg-white pt-32 pb-20">
