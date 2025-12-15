@@ -1,41 +1,49 @@
-import { createServerSideClient } from "@/lib/supabase-server";
+
+import { db } from "@/lib/firebase";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import ArchiveClient from "@/components/ArchiveClient";
-import { AdminPortfolioButton } from "@/components/AdminButtons";
+import AdminPortfolioButtonClient from "@/components/AdminPortfolioButtonClient"; // Updated Import
 import { extractFirstImage } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
 export default async function PortfolioPage() {
-  const supabase = await createServerSideClient();
   
-  // 0. Check User Session
-  const { data: { user } } = await supabase.auth.getUser();
-
-  // 1. Fetch new portfolios data
-  const { data: portfolios, error } = await supabase
-    .from("portfolios")
-    .select("*")
-    .eq("is_visible", true)
-    .order("completion_date", { ascending: false })
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.error("Portfolio fetch error:", error);
-    // 테이블이 없을 수도 있으니 에러 시 빈 배열 처리 (또는 에러 UI)
+  // 1. Fetch new portfolios data from Firestore
+  let portfolios: any[] = [];
+  try {
+      const q = query(
+          collection(db, "portfolios"), 
+          where("is_visible", "==", true)
+      );
+      
+      const querySnapshot = await getDocs(q);
+      portfolios = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (e) {
+      console.error("Firebase fetch error:", e);
   }
 
   // 2. Transform to match ArchiveClient interface
-  const formattedData = (portfolios || []).map((item) => ({
+  const formattedData = portfolios.map((item) => ({
     id: item.id,
     title: item.title,
     artist: item.artist || item.client || "ART HYUN",
     start_date: item.completion_date,
-    end_date: null, // 포트폴리오는 보통 완료일만 있음
+    end_date: null, 
     poster_url: item.thumbnail_url || extractFirstImage(item.description),
     description: item.description,
     source: "portfolio",
-    category: item.category // 추가 필드
+    category: item.category,
+    created_at: item.created_at // Pass created_at for fallback sort
   }));
+
+  // Sort manually
+  // Logic: Use completion_date (start_date) if exists, otherwise created_at for sorting
+  formattedData.sort((a, b) => {
+      const dateA = a.start_date ? new Date(a.start_date).getTime() : (a.created_at ? new Date(a.created_at).getTime() : 0);
+      const dateB = b.start_date ? new Date(b.start_date).getTime() : (b.created_at ? new Date(b.created_at).getTime() : 0);
+      return dateB - dateA;
+  });
 
   return (
     <div className="min-h-screen bg-white pt-32 pb-20">
@@ -65,12 +73,10 @@ export default async function PortfolioPage() {
             </p>
           </div>
           
-          {/* Admin Button (Mobile/Desktop) - Only visible to logged-in users */}
-          {user && (
-            <div className="absolute top-0 right-0 p-6 md:p-0 md:relative md:top-auto md:right-auto">
-               <AdminPortfolioButton /> 
-            </div>
-          )}
+          {/* Admin Button (Client Component) */}
+          <div className="absolute top-0 right-0 p-6 md:p-0 md:relative md:top-auto md:right-auto">
+             <AdminPortfolioButtonClient /> 
+          </div>
         </div>
 
         {/* Client Component (Grid & Modal) */}
@@ -78,7 +84,7 @@ export default async function PortfolioPage() {
             <ArchiveClient initialData={formattedData} />
         ) : (
             <div className="py-20 text-center text-gray-400">
-                <p>등록된 포트폴리오가 없습니다. (DB 마이그레이션이 필요합니다)</p>
+                <p>등록된 포트폴리오가 없습니다. (DB 연결 확인 필요)</p>
             </div>
         )}
         

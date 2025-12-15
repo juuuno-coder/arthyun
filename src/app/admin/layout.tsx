@@ -1,12 +1,45 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import LogoutButton from "@/components/LogoutButton";
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 export default function AdminLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState<any>(null);
+    const router = useRouter();
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                router.push("/login"); // Redirect if not logged in
+            } else {
+                setUser(user);
+            }
+            setLoading(false);
+        });
+        return () => unsubscribe();
+    }, [router]);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <p className="text-gray-400 font-serif">Verifying Access...</p>
+            </div>
+        );
+    }
+    
+    // If not user (and finished loading), handled by redirect, but return null
+    if (!user) return null;
+
     return (
         <div className="min-h-screen bg-gray-50 pt-20">
             {/* Admin Header / Nav */}

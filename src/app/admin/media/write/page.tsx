@@ -4,8 +4,9 @@ import { useState } from "react";
 import { createMedia } from "@/actions/mediaActions";
 import dynamicImport from "next/dynamic";
 import { Button } from "@/components/ui/button";
-import { createBrowserClient } from "@supabase/ssr"; // Use Browser Client for Auth Cookies
 import { toast } from "sonner"; 
+import { storage } from "@/lib/firebase"; // Firebase Storage
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 // Editor를 동적으로 import (SSR 방지)
 const Editor = dynamicImport(() => import("@/components/Editor"), {
@@ -19,12 +20,6 @@ export const dynamic = "force-dynamic";
 export default function AdminMediaWrite() {
     const [contentHtml, setContentHtml] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    
-    // Authenticated Client for File Uploads
-    const supabase = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -40,39 +35,22 @@ export default function AdminMediaWrite() {
                 const fileExt = imageFile.name.split(".").pop();
                 const fileName = `media/${Date.now()}.${fileExt}`;
 
-                const { error: uploadError } = await supabase.storage
-                    .from("og_images")
-                    .upload(fileName, imageFile);
+                // Firebase Storage Upload
+                const storageRef = ref(storage, `og_images/${fileName}`);
+                await uploadBytes(storageRef, imageFile);
+                const publicUrl = await getDownloadURL(storageRef);
 
-                if (uploadError) throw new Error("이미지 업로드 실패: " + uploadError.message);
-
-                const { data: { publicUrl } } = supabase.storage
-                    .from("og_images")
-                    .getPublicUrl(fileName);
-
-                // Add URL to formData and remove file to prevent double upload or serialization issues
+                // Add URL to formData and remove file
                 formData.set("image_url_direct", publicUrl);
-                formData.delete("image"); // Remove file from formData sent to server
+                formData.delete("image"); 
             }
 
             // 2. Submit to Server Action
             await createMedia(formData); 
-            // createMedia handles redirect on success, so no toast needed here usually, 
-            // but if it fails it throws.
             
         } catch (error: any) {
             console.error(error);
-            
-            let message = error.message;
-            if (message.includes("The object exceeded the maximum allowed size")) {
-                message = "이미지 용량이 너무 큽니다. (더 작은 이미지를 사용해주세요)";
-            } else if (message.includes("row-level security policy")) {
-                message = "이미지 업로드 권한이 없습니다. (새로고침 후 다시 시도해주세요)";
-            } else if (message.includes("Payload too large")) {
-                message = "요청 용량이 너무 큽니다.";
-            }
-
-            toast.error(message);
+            toast.error(error.message || "등록 중 오류가 발생했습니다.");
             setIsLoading(false);
         }
     };

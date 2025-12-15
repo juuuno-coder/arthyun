@@ -43,8 +43,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const footerLogoUrl = `${supabaseUrl}/storage/v1/object/public/migration_uploads/2019/02/0dd60f7fc0a29d1943f7bfae58f46435.png`;
+  const sidebarLogoUrl = "https://firebasestorage.googleapis.com/v0/b/arthyun-5b255.firebasestorage.app/o/migration_uploads%2F2019%2F02%2F0dd60f7fc0a29d1943f7bfae58f46435.png?alt=media"; // Hardcoded migrated logo
+  const footerLogoUrl = sidebarLogoUrl;
 
   // JSON-LD Structure
   const jsonLd = {

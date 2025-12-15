@@ -6,7 +6,7 @@ import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { deleteMedia } from "@/actions/mediaActions";
 
-export default function DeleteMediaButton({ id }: { id: number }) {
+export default function DeleteMediaButton({ id }: { id: string | number }) {
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = async () => {

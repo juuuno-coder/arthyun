@@ -1,18 +1,34 @@
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import { db } from "@/lib/firebase";
+import { collection, query, orderBy, getDocs } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
 import PortfolioListClient from "@/components/admin/PortfolioListClient";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminPortfolioList() {
-    const { data: portfolios, error } = await supabase
-        .from("portfolios")
-        .select("*")
-        .order("created_at", { ascending: false }); // Default sort by created_at
+    let portfolios: any[] = [];
+    let errorMsg = "";
 
-    if (error) {
-        return <div className="p-10 text-red-500">에러 발생: {error.message} (테이블이 생성되었는지 확인해주세요)</div>;
+    try {
+        const q = query(
+            collection(db, "portfolios"),
+            orderBy("created_at", "desc")
+        );
+        const querySnapshot = await getDocs(q);
+        
+        portfolios = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+
+    } catch (err: any) {
+        console.error("Firestore Error:", err);
+        errorMsg = err.message;
+    }
+
+    if (errorMsg) {
+        return <div className="p-10 text-red-500">에러 발생: {errorMsg}</div>;
     }
 
     return (
@@ -26,7 +42,7 @@ export default async function AdminPortfolioList() {
                 </Link>
             </div>
 
-            <PortfolioListClient initialPortfolios={portfolios || []} />
+            <PortfolioListClient initialPortfolios={portfolios} />
         </div>
     );
 }

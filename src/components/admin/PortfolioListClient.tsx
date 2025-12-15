@@ -7,7 +7,7 @@ import DeletePortfolioButton from "@/components/admin/DeletePortfolioButton";
 import { ArrowUpDown } from "lucide-react";
 
 type Portfolio = {
-    id: number;
+    id: string | number;
     title: string;
     client?: string;
     location?: string;

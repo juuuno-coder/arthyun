@@ -1,61 +1,134 @@
 "use server";
 
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { db, storage } from "@/lib/firebase";
+import { collection, addDoc, doc, deleteDoc, updateDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
-// Server Action to delete a portfolio
-export async function deletePortfolio(id: number) {
-  const cookieStore = await cookies();
+// Server Action to create a portfolio
+export async function createPortfolio(formData: FormData) {
+  // 1. Extract Data
+  const title = formData.get("title") as string;
+  const client = formData.get("client") as string;
+  const category = formData.get("category") as string;
+  const completion_date = formData.get("completion_date") as string;
+  const description = formData.get("description") as string;
+  const thumbnailFile = formData.get("thumbnail") as File;
+  const thumbnailUrlDirect = formData.get("thumbnail_url_direct") as string;
 
-  // Create a Supabase client with the user's cookies (session)
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
-          } catch {
-            // The `setAll` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing
-            // user sessions.
-          }
-        },
-      },
+  let thumbnail_url = thumbnailUrlDirect || null;
+
+  try {
+    // 2. Upload Thumbnail (Server-Side Fallback)
+    if (!thumbnail_url && thumbnailFile && thumbnailFile.size > 0) {
+      const fileExt = thumbnailFile.name.split(".").pop();
+      const fileName = `portfolio/${Date.now()}.${fileExt}`;
+      const storageRef = ref(storage, `og_images/${fileName}`);
+
+      const arrayBuffer = await thumbnailFile.arrayBuffer();
+      const buffer = new Uint8Array(arrayBuffer);
+
+      await uploadBytes(storageRef, buffer, { contentType: thumbnailFile.type });
+      thumbnail_url = await getDownloadURL(storageRef);
     }
-  );
 
-  // 1. Check Authentication (Extra safety layer)
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    throw new Error("로그인이 필요합니다.");
+    // 3. Insert DB
+    const docData = {
+      title,
+      client,
+      location: null,
+      completion_date: completion_date || null,
+      category,
+      description,
+      thumbnail_url,
+      is_visible: true,
+      created_at: new Date().toISOString(),
+    };
+
+    await addDoc(collection(db, "portfolios"), docData);
+
+  } catch (error: any) {
+    console.error("Create Portfolio Error:", error);
+    throw new Error("포트폴리오 등록 실패: " + error.message);
   }
 
-  // 2. Perform Delete
-  const { error, count } = await supabase
-    .from("portfolios")
-    .delete({ count: 'exact' }) // 요청: 정확한 삭제 개수 반환
-    .eq("id", id);
-
-  if (error) {
-    throw new Error("DB 삭제 실패: " + error.message);
-  }
-
-  // If RLS blocked it or item didn't exist, count will be 0
-  if (count === 0) {
-      throw new Error("삭제할 권한이 없거나 이미 삭제된 항목입니다.");
-  }
-
-  // 3. Revalidate Path
+  // 4. Revalidate
   revalidatePath("/admin/portfolio");
   revalidatePath("/portfolio");
+  redirect("/admin/portfolio");
+}
+
+// Server Action to update a portfolio
+export async function updatePortfolio(id: string | number, formData: FormData) {
+  // 1. Extract Data
+  const title = formData.get("title") as string;
+  const client = formData.get("client") as string;
+  const category = formData.get("category") as string;
+  const completion_date = formData.get("completion_date") as string;
+  const description = formData.get("description") as string;
+  const thumbnailFile = formData.get("thumbnail") as File;
+  const thumbnailUrlDirect = formData.get("thumbnail_url_direct") as string;
+
+  let thumbnail_url = thumbnailUrlDirect || null; // If null, means no change OR removed?
+  // Logic: passing existing URL if not changed?
+  // We need to know if we should KEEP existing image if no new one provided.
+  // Generally Edit forms pass the 'existing' URL back or we handle it here.
+  // Let's assume the Client sends 'thumbnail_url_direct' as the EXISTING URL if no new file.
   
-  return { success: true };
+  try {
+     // Upload if new file
+     if (thumbnailFile && thumbnailFile.size > 0) {
+        const fileExt = thumbnailFile.name.split(".").pop();
+        const fileName = `portfolio/${Date.now()}.${fileExt}`;
+        const storageRef = ref(storage, `og_images/${fileName}`);
+
+        const arrayBuffer = await thumbnailFile.arrayBuffer();
+        const buffer = new Uint8Array(arrayBuffer);
+
+        await uploadBytes(storageRef, buffer, { contentType: thumbnailFile.type });
+        thumbnail_url = await getDownloadURL(storageRef);
+     }
+
+     // Prepare Update Data
+     const updateData: any = {
+        title,
+        client,
+        completion_date: completion_date || null,
+        category,
+        description,
+        updated_at: new Date().toISOString()
+     };
+     
+     if (thumbnail_url) {
+         updateData.thumbnail_url = thumbnail_url;
+     }
+
+     const docRef = doc(db, "portfolios", String(id));
+     await updateDoc(docRef, updateData);
+
+  } catch (error: any) {
+    console.error("Update Portfolio Error:", error);
+    throw new Error("수정 실패: " + error.message);
+  }
+
+  revalidatePath("/admin/portfolio");
+  revalidatePath("/portfolio");
+  redirect("/admin/portfolio");
+}
+
+
+// Server Action to delete a portfolio
+export async function deletePortfolio(id: string | number) {
+  try {
+    const docRef = doc(db, "portfolios", String(id));
+    await deleteDoc(docRef);
+
+    revalidatePath("/admin/portfolio");
+    revalidatePath("/portfolio");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Delete Portfolio Error:", error);
+    throw new Error("삭제 실패: " + error.message);
+  }
 }

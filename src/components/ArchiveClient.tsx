@@ -5,10 +5,11 @@ import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import { X, Search } from "lucide-react"; 
 import { Button } from "@/components/ui/button";
-import { createBrowserClient } from "@supabase/ssr";
+// import { createBrowserClient } from "@supabase/ssr"; // REMOVED
+import { auth } from "@/lib/firebase"; // ADDED Firebase Auth
+import { onAuthStateChanged } from "firebase/auth";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { importPortfolio } from "@/actions/migrationActions";
 import { stripImageFromContent } from "@/lib/utils";
 import ImageFixDialog from "@/components/admin/ImageFixDialog";
 
@@ -51,30 +52,31 @@ export default function ArchiveClient({ initialData }: { initialData: any[] }) {
   const [isImporting, setIsImporting] = useState(false);
 
   useEffect(() => {
-    const supabase = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) setIsAdmin(true);
+    // Firebase Auth Check
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+        setIsAdmin(!!user);
     });
+    return () => unsubscribe();
   }, []);
 
   const handleImport = async () => {
-      if (!selectedExhibition || !isAdmin) return;
-      if (!confirm("이 항목을 포트폴리오로 복사하시겠습니까?\n이미지 파일도 함께 복사되며, 원본은 유지됩니다.")) return;
+    // Feature disabled during migration
+    toast.info("마이그레이션 중이라 현재 사용할 수 없는 기능입니다.");
+      
+    //   if (!selectedExhibition || !isAdmin) return;
+    //   if (!confirm("이 항목을 포트폴리오로 복사하시겠습니까?\n이미지 파일도 함께 복사되며, 원본은 유지됩니다.")) return;
 
-      setIsImporting(true);
-      try {
-          await importPortfolio(selectedExhibition.id);
-          toast.success("포트폴리오로 복사되었습니다. (관리자 페이지에서 확인)");
-          // setSelectedExhibition(null); // Keep open if user wants to see it? Or close.
-          // router.refresh(); // Refresh list not needed if we don't delete. But good to sync.
-      } catch (e: any) {
-          toast.error("복사 실패: " + e.message);
-      } finally {
-          setIsImporting(false);
-      }
+    //   setIsImporting(true);
+    //   try {
+    //       await importPortfolio(selectedExhibition.id);
+    //       toast.success("포트폴리오로 복사되었습니다. (관리자 페이지에서 확인)");
+    //       // setSelectedExhibition(null); // Keep open if user wants to see it? Or close.
+    //       // router.refresh(); // Refresh list not needed if we don't delete. But good to sync.
+    //   } catch (e: any) {
+    //       toast.error("복사 실패: " + e.message);
+    //   } finally {
+    //       setIsImporting(false);
+    //   }
   };
   
   // 필터 및 정렬 상태
@@ -368,8 +370,6 @@ export default function ArchiveClient({ initialData }: { initialData: any[] }) {
             </div>
           </div>
 
-
-        
         {/* Lightbox Component */}
         <Lightbox
             open={isLightboxOpen}

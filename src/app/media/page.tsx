@@ -1,5 +1,6 @@
 
-import { supabase } from "@/lib/supabase";
+import { db } from "@/lib/firebase";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import SocialConnect from "@/components/SocialConnect";
@@ -7,30 +8,24 @@ import { AdminMediaButton } from "@/components/AdminButtons";
 
 // 🚀 ISR 적용: 60초마다 캐시 갱신
 export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function MediaPage() {
-  // 1. Fetch Existing Media Releases (New System)
-  const { data: pressReleases } = await supabase
-    .from("media_releases")
-    .select("*")
-    .order("created_at", { ascending: false });
+  // 1. Fetch Existing Media Releases from Firestore
+  let pressReleases: any[] = [];
+  try {
+      const q = query(collection(db, "media_releases"), orderBy("created_at", "desc"));
+      const querySnapshot = await getDocs(q);
+      pressReleases = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (e) {
+      console.error("Firebase fetch error:", e);
+  }
 
-  // 2. Fetch Migrated Posts (Old System)
   // 2. Fetch Migrated Posts (Old System) -> REMOVED
-  // 사용자 요청: 이전 DB 데이터(쓸데없는 글들)는 숨기기
   const oldItems: any[] = []; 
   
-  /* 
-  const { data: migratedPosts } = await supabase
-    .from("migrated_posts")
-    .select("*")
-    .eq("type", "post")
-    .neq("title", "Hello world!") // Exclude default
-    .order("date", { ascending: false });
-  */
-
   // Merge items
-  const newItems = (pressReleases || []).map(item => ({
+  const newItems = pressReleases.map(item => ({
     id: `new-${item.id}`,
     realId: item.id,
     type: 'new',
@@ -38,11 +33,9 @@ export default async function MediaPage() {
     date: item.published_date || item.created_at,
     image: item.image_url,
     source: item.press_name || "NEWS",
-    link: `/media/${item.id}` // Always go to detail detail page
+    link: `/media/${item.id}` 
   }));
                    
-  // const oldItems = ... removed ...
-
   const items = [...newItems, ...oldItems].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (

@@ -6,7 +6,7 @@ import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { deletePortfolio } from "@/actions/portfolioActions";
 
-export default function DeletePortfolioButton({ id }: { id: number }) {
+export default function DeletePortfolioButton({ id }: { id: string | number }) {
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = async () => {

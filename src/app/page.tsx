@@ -1,4 +1,6 @@
-import { supabase } from "@/lib/supabase";
+
+import { db } from "@/lib/firebase";
+import { collection, getDocs, query, limit } from "firebase/firestore";
 import MainSlider from "@/components/MainSlider"; 
 import MainBackground from "@/components/MainBackground";
 import Image from "next/image";
@@ -6,23 +8,23 @@ import Link from "next/link";
 
 // 1분마다 갱신 (ISR) - 성능 최적화
 export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-
-
   try {
-    // 1. 포트폴리오 데이터 가져오기 (메인 슬라이더용) - 잠시 연동 해제
-    // ... (commented out code) ...
-    
-    // 임시로 슬라이더 데이터 비움
-    const slides: any[] = [];
+    const slides: any[] = []; // 메인 슬라이더 잠시 비활성화 유지
 
     // 2. 메인 페이지 설정 가져오기 (배경, 텍스트)
-    const { data: mainSettings } = await supabase
-        .from("main_settings")
-        .select("*")
-        .limit(1)
-        .maybeSingle();
+    let mainSettings: any = null;
+    try {
+        const q = query(collection(db, "main_settings"), limit(1));
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+            mainSettings = snap.docs[0].data();
+        }
+    } catch (e) {
+        console.error("Firebase main_settings fetch error:", e);
+    }
 
     return (
         <div className="relative w-full h-screen overflow-hidden bg-black">
@@ -37,7 +39,6 @@ export default async function HomePage() {
                 ) : (
                 <div className="h-full flex flex-col items-center justify-center text-white/80 gap-8 text-center px-4 animate-fade-in">
                     {/* 1. 포스터 이미지 (링크 연결 및 사이즈 축소) */}
-                    {/* 1. 포스터 이미지 (링크 연결 및 사이즈 축소) - Next.js Image 최적화 */}
                     {mainSettings?.poster_url && (
                         <div className="relative w-full max-w-[400px] md:max-w-[500px] h-[50vh] flex items-center justify-center">
                             {mainSettings.link_url ? (
@@ -84,12 +85,10 @@ export default async function HomePage() {
         </div>
     );
   } catch (error: any) {
-    // ... existing error handler
     console.error("CRITICAL ERROR IN PAGE:", error);
     // [Safety Fallback]
     return (
         <div className="h-screen w-full flex flex-col items-center justify-center bg-black text-white p-10 text-center">
-            {/* ... fallback content ... */}
              <h1 className="text-4xl font-serif mb-4">Art Hyun</h1>
              <p className="text-gray-400 mb-8">System Maintenance</p>
              <p className="text-xs text-red-500">{error.message}</p>

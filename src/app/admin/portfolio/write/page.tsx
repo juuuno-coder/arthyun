@@ -2,17 +2,18 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import dynamic from "next/dynamic";
+import dynamicImport from "next/dynamic";
 import { compressImage } from "@/utils/compressImage";
+import { db, storage } from "@/lib/firebase"; // Firestore & Storage
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { collection, addDoc } from "firebase/firestore"; // Firestore Write
 
 // Rich Editor (Client side only)
-const Editor = dynamic(() => import("@/components/Editor"), { ssr: false });
+const Editor = dynamicImport(() => import("@/components/Editor"), { ssr: false });
 
 export default function WritePortfolioPage() {
     const router = useRouter();
@@ -22,67 +23,73 @@ export default function WritePortfolioPage() {
     // Form States
     const [title, setTitle] = useState("");
     const [client, setClient] = useState("");
-    const [completionDate, setCompletionDate] = useState(""); // Restored state
+    const [completionDate, setCompletionDate] = useState(""); 
     const [category, setCategory] = useState("Public Art");
     const [content, setContent] = useState("");
     const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.log("Submitting form..."); // DEBUG
+
         if (!title) {
             toast.error("프로젝트명을 입력해주세요.");
             return;
         }
 
         setIsLoading(true);
-        const supabase = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-        );
 
         try {
-            // 1. Upload Thumbnail
             let thumbnailUrl = null;
-            if (thumbnailFile) {
-                // 압축 적용
-                const compressedFile = await compressImage(thumbnailFile);
-                
-                const fileName = `${Date.now()}.webp`;
-                const { error: uploadError } = await supabase.storage
-                    .from("og_images")
-                    .upload(`portfolio/${fileName}`, compressedFile);
 
-                if (uploadError) throw uploadError;
+            // 1. Upload Thumbnail (Client-side)
+            if (thumbnailFile) {
+                console.log("Starting image upload..."); // DEBUG
+                // 압축 적용
+                console.log("Compressing image..."); // DEBUG
+                const compressedFile = await compressImage(thumbnailFile);
+                console.log("Compressed file:", compressedFile); // DEBUG
                 
-                const { data: { publicUrl } } = supabase.storage
-                    .from("og_images")
-                    .getPublicUrl(`portfolio/${fileName}`);
+                const fileName = `portfolio/${Date.now()}.webp`;
+                const storageRef = ref(storage, `og_images/${fileName}`);
                 
-                thumbnailUrl = publicUrl;
+                console.log("Uploading bytes to:", storageRef.fullPath); // DEBUG
+                const snapshot = await uploadBytes(storageRef, compressedFile);
+                console.log("Upload snapshot:", snapshot); // DEBUG
+
+                console.log("Getting download URL..."); // DEBUG
+                thumbnailUrl = await getDownloadURL(storageRef);
+                console.log("Thumbnail URL:", thumbnailUrl); // DEBUG
             }
 
-            // 2. Insert Data
-            const { error: insertError } = await supabase
-                .from("portfolios")
-                .insert({
-                    title,
-                    client,
-                    location: null, 
-                    completion_date: completionDate || null, // Use state
-                    category,
-                    description: content,
-                    thumbnail_url: thumbnailUrl,
-                    is_visible: true
-                });
+            // 2. Create Document in Firestore (Client-side)
+            console.log("Creating Firestore document..."); // DEBUG
+            const docData = {
+                title,
+                client,
+                location: null,
+                completion_date: completionDate || null,
+                category,
+                description: content,
+                thumbnail_url: thumbnailUrl,
+                is_visible: true,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+            console.log("Document Data:", docData); // DEBUG
 
-            if (insertError) throw insertError;
-
+            const docRef = await addDoc(collection(db, "portfolios"), docData);
+            console.log("Document Created with ID:", docRef.id); // DEBUG
+            
             toast.success("포트폴리오가 등록되었습니다.");
+            alert("성공적으로 등록되었습니다!"); // 명시적 알림
             router.push("/admin/portfolio");
-            router.refresh();
+            router.refresh(); // Refresh Client Cache
+            
         } catch (error: any) {
+            console.error("Submission Error:", error); // DEBUG
+            alert(`등록 실패 상세 에러: ${error.message} \n (콘솔 로그를 확인해주세요)`);
             toast.error("등록 실패: " + error.message);
-            console.error(error);
         } finally {
             setIsLoading(false);
         }
@@ -102,7 +109,7 @@ export default function WritePortfolioPage() {
 
             <form onSubmit={handleSubmit} className="space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                     {/* 1. 카테고리 (Category) - Moved to Top */}
+                     {/* 1. 카테고리 (Category) */}
                      <div className="space-y-2 md:col-span-2">
                         <Label>카테고리</Label>
                         <select 
@@ -122,7 +129,7 @@ export default function WritePortfolioPage() {
                         </select>
                     </div>
 
-                    {/* 2. 프로젝트명 (Project Name) */}
+                    {/* 2. 프로젝트명 */}
                     <div className="space-y-2">
                         <Label>프로젝트명 *</Label>
                         <Input 
@@ -134,7 +141,7 @@ export default function WritePortfolioPage() {
                         />
                     </div>
 
-                    {/* 3. 발주처 / 클라이언트 (Client) */}
+                    {/* 3. 발주처 / 클라이언트 */}
                     <div className="space-y-2">
                         <Label>발주처 / 클라이언트</Label>
                         <Input 
@@ -145,7 +152,7 @@ export default function WritePortfolioPage() {
                         />
                     </div>
 
-                    {/* 4. 완공일 (Completion Date) - Restored */}
+                    {/* 4. 완공일 */}
                     <div className="space-y-2">
                         <Label>프로젝트 완료일</Label>
                         <Input 
@@ -156,7 +163,7 @@ export default function WritePortfolioPage() {
                         />
                     </div>
 
-                    {/* 4. 대표 이미지 (Thumbnail) - Drag & Drop */}
+                    {/* 5. 대표 이미지 (Thumbnail) - Drag & Drop */}
                     <div className="space-y-2 md:col-span-2">
                         <Label>대표 이미지 (썸네일)</Label>
                         <div
@@ -194,6 +201,7 @@ export default function WritePortfolioPage() {
                             ) : (
                                 <div className="text-center py-8">
                                     <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
+                                        {/* Icon */}
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                                         </svg>

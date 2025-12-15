@@ -3,17 +3,17 @@
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { createBrowserClient } from "@supabase/ssr";
 import { toast } from "sonner";
 import dynamicImport from "next/dynamic";
+import { db, storage } from "@/lib/firebase";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 
-// Editor를 동적으로 import (SSR 방지)
 const Editor = dynamicImport(() => import("@/components/Editor"), {
   ssr: false,
   loading: () => <div className="min-h-[200px] border rounded-md p-4 flex items-center justify-center text-gray-400">에디터 로딩 중...</div>
 });
 
-// 정적 생성 방지
 export const dynamic = "force-dynamic";
 
 export default function EditMediaPage({ params }: { params: Promise<{ id: string }> }) {
@@ -24,50 +24,49 @@ export default function EditMediaPage({ params }: { params: Promise<{ id: string
     const [isLoading, setIsLoading] = useState(false);
     const [contentHtml, setContentHtml] = useState("");
     
-    // Authenticated Client
-    const supabase = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-
     useEffect(() => {
         async function loadMedia() {
-            const { data, error } = await supabase
-                .from("media_releases")
-                .select("*")
-                .eq("id", id)
-                .single();
+            try {
+                const docRef = doc(db, "media_releases", id);
+                const docSnap = await getDoc(docRef);
 
-            if (error) {
-                alert("보도자료 정보를 불러올 수 없습니다.");
+                if (!docSnap.exists()) {
+                    alert("보도자료 정보를 불러올 수 없습니다.");
+                    router.push("/admin/media");
+                    return;
+                }
+
+                const data = docSnap.data();
+                setMedia(data);
+                setContentHtml(data.content || "");
+                setLoading(false);
+
+            } catch (error) {
+                console.error("Load Error:", error);
+                alert("불러오기 실패");
                 router.push("/admin/media");
-                return;
             }
-
-            setMedia(data);
-            setContentHtml(data.content || ""); // 초기 내용 설정
-            setLoading(false);
         }
-
         loadMedia();
     }, [id, router]);
 
-    // 이미지 삭제 함수
     const handleDeleteImage = async () => {
         if (!confirm("이미지를 삭제하시겠습니까?")) return;
 
-        const { error } = await supabase
-            .from("media_releases")
-            .update({ image_url: null })
-            .eq("id", id);
+        try {
+            // Optional: Delete from Storage (if generated file)
+            // if (media.image_url && media.image_url.includes("firebasestorage")) { ... }
+            // For now, just remove link from DB.
 
-        if (error) {
+            const docRef = doc(db, "media_releases", id);
+            await updateDoc(docRef, { image_url: null });
+
+            setMedia({ ...media, image_url: null });
+            alert("이미지가 삭제되었습니다.");
+        } catch (error) {
+            console.error("Delete Image Error:", error);
             alert("이미지 삭제 실패");
-            return;
         }
-
-        setMedia({ ...media, image_url: null });
-        alert("이미지가 삭제되었습니다.");
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -76,92 +75,45 @@ export default function EditMediaPage({ params }: { params: Promise<{ id: string
 
         const formData = new FormData(e.currentTarget);
         const imageFile = formData.get("image") as File;
-
         let image_url = media.image_url;
 
-        // 새 이미지가 업로드된 경우
-        if (imageFile && imageFile.size > 0) {
-            // 기존 이미지가 있으면 Storage에서 삭제
-            if (media.image_url) {
-                try {
-                    // URL에서 파일명 추출 (전체 경로에서 마지막 부분만)
-                    const urlParts = media.image_url.split('/');
-                    const oldFileName = urlParts[urlParts.length - 1];
+        try {
+            // New Image Upload
+            if (imageFile && imageFile.size > 0) {
+                const fileExt = imageFile.name.split('.').pop();
+                const fileName = `media/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+                const storageRef = ref(storage, `og_images/${fileName}`);
 
-                    // 쿼리 파라미터 제거 (예: ?token=xxx)
-                    const cleanFileName = oldFileName.split('?')[0];
-
-                    if (cleanFileName && cleanFileName !== 'null' && cleanFileName !== 'undefined') {
-                        await supabase.storage
-                            .from("og_images")
-                            .remove([cleanFileName]);
-                    }
-                } catch (error) {
-                    console.error("기존 이미지 삭제 실패:", error);
-                    // 삭제 실패해도 계속 진행
-                }
+                await uploadBytes(storageRef, imageFile);
+                image_url = await getDownloadURL(storageRef);
             }
 
-            // 새 이미지 업로드
-            const fileExt = imageFile.name.split('.').pop();
-            const fileName = `media/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-
-            const { data: uploadData, error: uploadError } = await supabase.storage
-                .from("og_images")
-                .upload(fileName, imageFile);
-
-            if (uploadError) {
-                console.error("업로드 에러:", uploadError);
-                
-                let message = uploadError.message;
-                if (message.includes("Bucket not found")) {
-                    message = "설정된 이미지 저장소(Bucket)가 없습니다. 관리자에게 문의하세요.";
-                } else if (message.includes("The object exceeded the maximum allowed size")) {
-                    message = "이미지 용량이 너무 큽니다.";
-                } else if (message.includes("row-level security")) {
-                    message = "이미지 업로드 권한이 없습니다.";
-                }
-                
-                toast.error(message);
-                setIsLoading(false);
-                return;
-            }
-
-            const { data: urlData } = supabase.storage
-                .from("og_images")
-                .getPublicUrl(fileName);
-            image_url = urlData.publicUrl;
-        }
-
-        const { error } = await supabase
-            .from("media_releases")
-            .update({
+            // Update Doc
+            const docRef = doc(db, "media_releases", id);
+            await updateDoc(docRef, {
                 press_name: formData.get("press_name") as string,
                 title: formData.get("title") as string,
                 link_url: formData.get("link_url") as string,
-                content: formData.get("content") as string,
+                content: contentHtml, // Use state from Editor
                 published_date: formData.get("published_date") as string || null,
                 image_url,
-            })
-            .eq("id", id);
+                updated_at: new Date().toISOString()
+            });
 
-        if (error) {
+            toast.success("수정 완료!");
+            router.push("/admin/media");
+            router.refresh();
+
+        } catch (error: any) {
+            console.error("Update Error:", error);
             toast.error("수정 실패: " + error.message);
+        } finally {
             setIsLoading(false);
-            return;
         }
-
-        toast.success("수정 완료!");
-        router.push("/admin/media");
     };
 
-    if (loading) {
-        return <div className="max-w-3xl mx-auto py-20 px-6">로딩 중...</div>;
-    }
-
-    if (!media) {
-        return <div className="max-w-3xl mx-auto py-20 px-6">보도자료를 찾을 수 없습니다.</div>;
-    }
+    if (loading) return <div className="max-w-3xl mx-auto py-20 px-6">로딩 중...</div>;
+    if (!media) return <div className="max-w-3xl mx-auto py-20 px-6">보도자료를 찾을 수 없습니다.</div>;
 
     return (
         <div className="max-w-3xl mx-auto py-20 px-6 animate-fade-in-up">
@@ -223,8 +175,6 @@ export default function EditMediaPage({ params }: { params: Promise<{ id: string
                             onChange={(html: string) => setContentHtml(html)}
                         />
                     </div>
-                    {/* 텍스트 에디터 내용을 폼 전송에 포함시키기 위한 hidden input */}
-                    <input type="hidden" name="content" value={contentHtml} />
                 </div>
 
                 <div>
