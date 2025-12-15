@@ -1,4 +1,4 @@
-
+﻿
 import { db } from "@/lib/firebase";
 import { collection, getDocs, query, limit } from "firebase/firestore";
 import MainSlider from "@/components/MainSlider"; 
@@ -6,15 +6,14 @@ import MainBackground from "@/components/MainBackground";
 import Image from "next/image";
 import Link from "next/link";
 
-// 1분마다 갱신 (ISR) - 성능 최적화
-export const revalidate = 60;
+// 1遺꾨쭏??媛깆떊 (ISR) - ?깅뒫 理쒖쟻??export const revalidate = 60;
 // export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   try {
-    const slides: any[] = []; // 메인 슬라이더 임시 비활성화 (전시 기능 삭제됨)
+    const slides: any[] = []; // 硫붿씤 ?щ씪?대뜑 ?좎떆 鍮꾪솢?깊솕 ?좎?
 
-    // 2. 메인 설정 가져오기 (배경, 텍스트)
+    // 2. 硫붿씤 ?섏씠吏 ?ㅼ젙 媛?몄삤湲?(諛곌꼍, ?띿뒪??
     let mainSettings: any = null;
     try {
         const q = query(collection(db, "main_settings"), limit(1));
@@ -28,7 +27,7 @@ export default async function HomePage() {
 
     return (
         <div className="relative w-full h-screen overflow-hidden bg-black">
-            {/* 배경 비디오 (항상 표시) */}
+            {/* 諛곌꼍 鍮꾨뵒??(??긽 ?쒖떆) */}
             <MainBackground youtubeUrl={mainSettings?.youtube_url} />
 
             <div className="relative z-10 h-full w-full pt-16">
@@ -38,7 +37,7 @@ export default async function HomePage() {
                 />
                 ) : (
                 <div className="h-full flex flex-col items-center justify-center text-white/80 gap-8 text-center px-4 animate-fade-in">
-                    {/* 1. 포스터 이미지 (링크 연결 및 사이즈 축소) */}
+                    {/* 1. ?ъ뒪???대?吏 (留곹겕 ?곌껐 諛??ъ씠利?異뺤냼) */}
                     {mainSettings?.poster_url && (
                         <div className="relative w-full max-w-[400px] md:max-w-[500px] h-[50vh] flex items-center justify-center">
                             {mainSettings.link_url ? (
@@ -67,16 +66,16 @@ export default async function HomePage() {
                         </div>
                     )}
 
-                    {/* 2. 중앙 텍스트 (포스터 유무와 관계없이 표시) */}
+                    {/* 2. 以묒븰 ?띿뒪??(?ъ뒪???좊Т? 愿怨꾩뾾???쒖떆) */}
                     {mainSettings?.center_text ? (
                         <p className="text-base md:text-xl font-medium tracking-widest leading-relaxed whitespace-pre-wrap drop-shadow-lg max-w-3xl">
                             {mainSettings.center_text}
                         </p>
                     ) : !mainSettings?.poster_url && (
-                        /* 포스터도 없고 텍스트도 없을 때만 기본 문구 표시 */
+                        /* ?ъ뒪?곕룄 ?녾퀬 ?띿뒪?몃룄 ?놁쓣 ?뚮쭔 湲곕낯 臾멸뎄 ?쒖떆 */
                         <>
                             <p className="text-lg font-light tracking-widest text-white/40">EXHIBITION PREPARING</p>
-                            <p className="text-xs text-white/30">현재 진행 중인 전시가 준비 중입니다.</p>
+                            <p className="text-xs text-white/30">?꾩옱 吏꾪뻾 以묒씤 ?꾩떆媛 以鍮?以묒엯?덈떎.</p>
                         </>
                     )}
                 </div>
