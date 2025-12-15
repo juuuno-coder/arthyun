@@ -1,5 +1,6 @@
 // export const revalidate = 60;
-export const dynamic = "error";
+export const revalidate = 60;
+// export const dynamic = "error";
 
 export default function HomePage() {
   return (
