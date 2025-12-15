@@ -55,28 +55,18 @@ export default function MainSlider({ exhibitions, fallbackYoutubeUrl }: { exhibi
           </div>
         )}
 
-        {/* 작가명 */}
-        <p className="text-sm md:text-base text-gray-200 font-medium tracking-widest mb-2">
-          {current.artist}
-        </p>
-        
-        {/* 제목 (사이즈 축소: H1 -> H2급) */}
-        <h2 className="text-2xl md:text-4xl font-serif text-white font-bold mb-3 drop-shadow-md">
+        {/* 제목 (메뉴명과 동일 폰트, 한 단계 작게) */}
+        <h2 className="text-xl md:text-3xl font-sans font-bold text-white mb-6 drop-shadow-md tracking-widest uppercase">
           {current.title}
         </h2>
 
-        {/* 전시 기간 (추가됨) */}
-        <p className="text-xs md:text-sm text-gray-400 mb-6 font-light tracking-wider opacity-80">
+        {/* 전시 기간 */}
+        <p className="text-xs md:text-sm text-gray-400 mb-8 font-light tracking-wider opacity-80">
           {current.start_date && current.end_date 
             ? `${current.start_date.replace(/-/g, '.')} ~ ${current.end_date.replace(/-/g, '.')}`
             : ""}
         </p>
 
-        {/* 2. 설명글 (2줄로 제한) */}
-        <div 
-          className="text-gray-300 text-sm md:text-base leading-relaxed max-w-2xl line-clamp-2 mb-8 prose prose-invert prose-p:my-0"
-          dangerouslySetInnerHTML={{ __html: current.description || "" }}
-        />
 
         {/* 자세히 보기 버튼 */}
         <Link href={`/archive`}>
