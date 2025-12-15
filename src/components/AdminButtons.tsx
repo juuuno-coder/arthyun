@@ -1,25 +1,21 @@
 "use client";
 
-import { createBrowserClient } from "@supabase/ssr";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 // 전시 관리 버튼
 export function AdminExhibitionButton() {
   const [isAdmin, setIsAdmin] = useState(false);
   
   useEffect(() => {
-    const supabase = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-    
-    // 세션 체크
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) setIsAdmin(true);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+        setIsAdmin(!!user);
     });
+    return () => unsubscribe();
   }, []);
 
   if (!isAdmin) return null;
@@ -38,14 +34,10 @@ export function AdminMediaButton() {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    const supabase = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) setIsAdmin(true);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+        setIsAdmin(!!user);
     });
+    return () => unsubscribe();
   }, []);
 
   if (!isAdmin) return null;
@@ -64,14 +56,10 @@ export function AdminPortfolioButton() {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    const supabase = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) setIsAdmin(true);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+        setIsAdmin(!!user);
     });
+    return () => unsubscribe();
   }, []);
 
   if (!isAdmin) return null;
@@ -84,3 +72,4 @@ export function AdminPortfolioButton() {
     </Button>
   );
 }
+
