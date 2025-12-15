@@ -20,7 +20,7 @@ const heading = Montserrat({ subsets: ["latin"], variable: "--font-heading" });
 
 export async function generateMetadata(): Promise<Metadata> {
   // const settings = await getSiteSettings();
-const settings = null;
+const settings: any = null;
   
   const title = "Art Hyun | 예술로 여는 도시재생";
   const description = settings?.og_description || "공공미술, 공공디자인, 벽화 전문 청년 사회적기업입니다.";
