@@ -8,7 +8,7 @@ import Link from "next/link";
 
 // 1분마다 갱신 (ISR) - 성능 최적화
 export const revalidate = 60;
-export const dynamic = "force-dynamic";
+// export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   try {
