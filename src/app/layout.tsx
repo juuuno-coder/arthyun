@@ -45,7 +45,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const sidebarLogoUrl = "https://firebasestorage.googleapis.com/v0/b/arthyun-5b255.firebasestorage.app/o/migration_uploads%2F2019%2F02%2F0dd60f7fc0a29d1943f7bfae58f46435.png?alt=media"; // Hardcoded migrated logo
-  const footerLogoUrl = sidebarLogoUrl;
+  const footerLogoUrl = "/images/logo-light.png";
 
   // JSON-LD Structure
   const jsonLd = {
@@ -95,12 +95,12 @@ export default function RootLayout({
             {/* 왼쪽: 로고 및 주소 */}
             <div className="space-y-4">
               {/* 복원된 푸터 로고 */}
-              <div className="mb-6 opacity-80 hover:opacity-100 transition-opacity relative h-6 w-32">
+              <div className="mb-6 opacity-80 hover:opacity-100 transition-opacity relative h-8 w-40">
                  <Image 
                    src={footerLogoUrl} 
                    alt="Art Hyun Logo" 
                    fill
-                   className="object-contain object-left brightness-0 invert"
+                   className="object-contain object-left"
                    sizes="(max-width: 768px) 100px, 150px"
                  />
               </div>
