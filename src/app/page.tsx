@@ -1,6 +1,6 @@
 
 import { db } from "@/lib/firebase";
-import { collection, getDocs, query, limit } from "firebase/firestore";
+import { collection, getDocs, query, limit, where } from "firebase/firestore";
 import MainSlider from "@/components/MainSlider"; 
 import MainBackground from "@/components/MainBackground";
 import Image from "next/image";

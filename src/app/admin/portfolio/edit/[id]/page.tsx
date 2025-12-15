@@ -34,6 +34,7 @@ export default function EditPortfolioPage() {
     const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
     const [newThumbnailFile, setNewThumbnailFile] = useState<File | null>(null);
     const [isVisible, setIsVisible] = useState(true); 
+    const [isFeatured, setIsFeatured] = useState(false); // New State 
 
     useEffect(() => {
         const fetchData = async () => {
@@ -52,6 +53,7 @@ export default function EditPortfolioPage() {
                     setContent(data.description || "");
                     setThumbnailUrl(data.thumbnail_url);
                     setIsVisible(data.is_visible ?? true);
+                    setIsFeatured(data.is_featured || false);
                 } else {
                     toast.error("데이터를 찾을 수 없습니다.");
                     router.push("/admin/portfolio");
@@ -109,6 +111,7 @@ export default function EditPortfolioPage() {
                 description: content,
                 thumbnail_url: finalThumbnailUrl,
                 is_visible: isVisible,
+                is_featured: isFeatured,
                 updated_at: new Date().toISOString()
             });
 
@@ -170,6 +173,20 @@ export default function EditPortfolioPage() {
                         <Label htmlFor="visibility-check" className="cursor-pointer font-bold flex flex-col">
                             <span>메인 페이지 노출 (Public)</span>
                             <span className="text-xs text-gray-400 font-normal">체크 해제 시 관리자 페이지에서만 보입니다. (Draft)</span>
+                        </Label>
+                    </div>
+
+                    <div className="md:col-span-2 flex items-center space-x-2 border p-4 rounded-md bg-blue-50 border-blue-100">
+                        <input
+                            type="checkbox"
+                            id="featured-check"
+                            checked={isFeatured}
+                            onChange={(e) => setIsFeatured(e.target.checked)}
+                            className="w-5 h-5 accent-blue-600 cursor-pointer"
+                        />
+                        <Label htmlFor="featured-check" className="cursor-pointer font-bold flex flex-col text-blue-900">
+                            <span>메인 슬라이드 등록 (Featured)</span>
+                            <span className="text-xs text-blue-700 font-normal">체크 시 메인 페이지 상단 슬라이드에 노출됩니다.</span>
                         </Label>
                     </div>
 

@@ -19,6 +19,7 @@ export default function WritePortfolioPage() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
+    const [isFeatured, setIsFeatured] = useState(false); // New State
 
     // Form States
     const [title, setTitle] = useState("");
@@ -73,6 +74,7 @@ export default function WritePortfolioPage() {
                 description: content,
                 thumbnail_url: thumbnailUrl,
                 is_visible: true,
+                is_featured: isFeatured,
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
             };
@@ -108,6 +110,21 @@ export default function WritePortfolioPage() {
             <h1 className="text-3xl font-serif font-bold mb-10">새 포트폴리오 등록</h1>
 
             <form onSubmit={handleSubmit} className="space-y-8">
+                {/* 0. Main Slide Toggle */}
+                <div className="flex items-center space-x-2 border p-4 rounded-md bg-blue-50 border-blue-100 mb-6">
+                    <input
+                        type="checkbox"
+                        id="featured-check"
+                        checked={isFeatured}
+                        onChange={(e) => setIsFeatured(e.target.checked)}
+                        className="w-5 h-5 accent-blue-600 cursor-pointer"
+                    />
+                    <Label htmlFor="featured-check" className="cursor-pointer font-bold flex flex-col text-blue-900">
+                        <span>메인 슬라이드 등록 (Featured)</span>
+                        <span className="text-xs text-blue-700 font-normal">체크 시 메인 페이지 상단 슬라이드에 노출됩니다.</span>
+                    </Label>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                      {/* 1. 카테고리 (Category) */}
                      <div className="space-y-2 md:col-span-2">
