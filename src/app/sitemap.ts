@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, select, orderBy } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 
 const BASE_URL = 'https://arthyun.co.kr';
 
