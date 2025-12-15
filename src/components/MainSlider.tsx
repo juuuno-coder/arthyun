@@ -69,11 +69,7 @@ export default function MainSlider({ exhibitions, fallbackYoutubeUrl }: { exhibi
 
 
         {/* 자세히 보기 버튼 */}
-        <Link href={`/archive`}>
-           <button className="border border-white/30 text-white px-8 py-3 text-xs tracking-[0.2em] hover:bg-white hover:text-black transition uppercase">
-             View Exhibition
-           </button>
-        </Link>
+
       </div>
     </div>
   );
