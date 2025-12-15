@@ -74,10 +74,20 @@ export async function GET(request: Request) {
         updated_at: new Date().toISOString(),
     }, { merge: true });
 
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/admin/settings?success=true`);
+    return NextResponse.redirect(`${appUrl}/admin/settings?success=true`);
 
-  } catch (e) {
+  } catch (e: any) {
     console.error("Callback Error:", e);
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/admin/settings?error=server_error`);
+    // Return JSON to debug the 500 error
+    return NextResponse.json({ 
+        error: "Callback Failed", 
+        message: e.message, 
+        stack: e.stack,
+        envCheck: {
+            hasClientId: !!process.env.INSTAGRAM_CLIENT_ID,
+            hasFirebaseKey: !!process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+            appUrl: process.env.NEXT_PUBLIC_APP_URL
+        }
+    }, { status: 500 });
   }
 }
