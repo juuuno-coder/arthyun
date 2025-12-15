@@ -1,16 +1,29 @@
 "use server";
 
-export async function fetchInstagramFeed(accessToken: string) {
+export async function fetchInstagramFeed(accessToken: string, userId?: string) {
   try {
-    // 1. Get User ID (Me)
-    // Actually, simple way is 'me/media'.
     const fields = "id,caption,media_type,media_url,permalink,thumbnail_url,timestamp,username";
-    const url = `https://graph.instagram.com/me/media?fields=${fields}&access_token=${accessToken}&limit=50`;
+    let url = "";
+
+    if (userId) {
+        // Facebook Graph API (Business/Creator Accounts)
+        url = `https://graph.facebook.com/v21.0/${userId}/media?fields=${fields}&access_token=${accessToken}&limit=50`;
+    } else {
+        // Legacy Basic Display API (Fallback)
+        url = `https://graph.instagram.com/me/media?fields=${fields}&access_token=${accessToken}&limit=50`;
+    }
+
+    // Note: Graph API response structure is slightly different?
+    // Basic Display: { data: [...] }
+    // Graph API: { data: [...] } - Same top level structure for media list.
 
     const response = await fetch(url, { next: { revalidate: 3600 } }); // Cache for 1 hour
 
     if (!response.ok) {
-      console.error("Instagram API Error:", await response.text());
+      const errText = await response.text();
+      console.error("Instagram API Error:", errText);
+      // If Graph API fails, maybe token is for Basic Display? Try fallback? 
+      // Only if userId was falsy. If userId passed, we expect Graph API.
       return null;
     }
 

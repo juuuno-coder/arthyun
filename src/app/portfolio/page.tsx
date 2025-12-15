@@ -25,7 +25,7 @@ export default async function PortfolioPage() {
   // 1. Attempt Instagram Fetch if active
   if (settings?.is_instagram_active && settings?.instagram_access_token) {
       const { fetchInstagramFeed } = await import("@/actions/instagramActions");
-      const igItems = await fetchInstagramFeed(settings.instagram_access_token);
+      const igItems = await fetchInstagramFeed(settings.instagram_access_token, settings.instagram_user_id);
       
       if (igItems && Array.isArray(igItems)) {
           instagramData = igItems.map((item: any) => ({
