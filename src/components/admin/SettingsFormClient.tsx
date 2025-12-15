@@ -142,27 +142,51 @@ export default function SettingsFormClient({ settings }: { settings: Settings | 
                 </div>
 
                 <div className="space-y-4">
-                    <div className="space-y-2">
-                        <label className="block text-sm font-medium text-gray-700">Access Token (액세스 토큰)</label>
-                        <input 
-                            type="password" 
-                            value={instagramToken}
-                            onChange={(e) => setInstagramToken(e.target.value)}
-                            placeholder="Meta Developer 센터에서 발급받은 Long-lived Token"
-                            className="w-full border rounded-md p-3 text-sm font-mono bg-white focus:outline-none focus:ring-2 focus:ring-pink-500"
-                        />
-                        <p className="text-xs text-gray-500">* 보안상 ID/비밀번호 대신 공식 Access Token을 사용합니다.</p>
+                    {/* New: Login Button */}
+                    <div className="p-4 border rounded bg-white">
+                        <label className="block text-sm font-bold text-gray-700 mb-2">자동 연결 (권장)</label>
+                        <p className="text-xs text-gray-500 mb-3">
+                            비즈니스 계정과 연결된 Facebook 로그인을 통해 토큰을 자동으로 가져옵니다.
+                        </p>
+                        <a 
+                            href="/api/instagram/login"
+                            className="inline-flex items-center justify-center px-4 py-2 bg-[#1877F2] text-white rounded font-medium text-sm hover:bg-[#166fe5] transition-colors"
+                        >
+                            <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.791-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                            Instagram (Facebook) 로그인으로 연결
+                        </a>
                     </div>
+                
+                    {/* Manual Fallback */}
+                    <div className="pt-4 border-t">
+                        <details className="text-sm">
+                            <summary className="cursor-pointer font-medium text-gray-500 hover:text-gray-700">고급: 수동 입력 (개발자용)</summary>
+                            <div className="mt-4 space-y-4">
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-700">Access Token (액세스 토큰)</label>
+                                    <input 
+                                        type="password" 
+                                        value={instagramToken}
+                                        onChange={(e) => setInstagramToken(e.target.value)}
+                                        placeholder="Meta Developer 센터에서 발급받은 Long-lived Token"
+                                        className="w-full border rounded-md p-3 text-sm font-mono bg-white focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                    />
+                                </div>
 
-                    <div className="space-y-2">
-                        <label className="block text-sm font-medium text-gray-700">User ID (선택사항)</label>
-                        <input 
-                            type="text" 
-                            value={instagramUserId}
-                            onChange={(e) => setInstagramUserId(e.target.value)}
-                            placeholder="숫자로 된 User ID (입력하지 않으면 토큰으로 자동 조회 시도)"
-                            className="w-full border rounded-md p-3 text-sm font-mono bg-white focus:outline-none focus:ring-2 focus:ring-pink-500"
-                        />
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-700">User ID (선택사항)</label>
+                                    <input 
+                                        type="text" 
+                                        value={instagramUserId}
+                                        onChange={(e) => setInstagramUserId(e.target.value)}
+                                        placeholder="User ID (자동 연결 시 자동 저장됨)"
+                                        className="w-full border rounded-md p-3 text-sm font-mono bg-white focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                    />
+                                </div>
+                            </div>
+                        </details>
                     </div>
                 </div>
 
