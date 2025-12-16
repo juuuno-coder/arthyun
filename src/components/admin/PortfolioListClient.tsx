@@ -30,6 +30,31 @@ const CATEGORY_MAP: Record<string, string> = {
     "Other": "기타"
 };
 
+};
+
+function AdminThumbnail({ src, alt }: { src?: string, alt: string }) {
+    const [error, setError] = useState(false);
+
+    if (!src || error) {
+        return (
+            <div className="w-16 h-12 bg-gray-100 rounded overflow-hidden flex items-center justify-center text-[10px] text-gray-400 border border-gray-200">
+                No Img
+            </div>
+        );
+    }
+
+    return (
+        <div className="w-16 h-12 bg-gray-100 rounded overflow-hidden relative border border-gray-200">
+            <img
+                src={src}
+                alt={alt}
+                className="w-full h-full object-cover"
+                onError={() => setError(true)}
+            />
+        </div>
+    );
+}
+
 export default function PortfolioListClient({ initialPortfolios }: { initialPortfolios: Portfolio[] }) {
     const [portfolios, setPortfolios] = useState<Portfolio[]>(initialPortfolios);
     const [sortConfig, setSortConfig] = useState<{ key: keyof Portfolio; direction: 'asc' | 'desc' } | null>(null);
@@ -111,19 +136,7 @@ export default function PortfolioListClient({ initialPortfolios }: { initialPort
 
                                     {/* 2. 이미지 (Image) */}
                                     <td className="p-4 w-24">
-                                        <div className="relative w-16 h-12 bg-gray-100 rounded overflow-hidden">
-                                            {item.thumbnail_url ? (
-                                                <img
-                                                    src={item.thumbnail_url}
-                                                    alt={item.title}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            ) : (
-                                                <div className="flex items-center justify-center h-full text-xs text-gray-400">
-                                                    No Img
-                                                </div>
-                                            )}
-                                        </div>
+                                        <AdminThumbnail src={item.thumbnail_url} alt={item.title} />
                                     </td>
 
                                     {/* 3. 프로젝트명 (Title) */}
