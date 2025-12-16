@@ -77,16 +77,16 @@ export default async function AdminDashboardPage() {
         <div className="bg-black text-white p-6 rounded-xl shadow-lg relative overflow-hidden group">
           <div className="relative z-10 flex flex-col h-full justify-between">
             <div>
-                 <p className="text-white/60 text-sm font-medium mb-1">Today Visitors</p>
+                 <p className="text-white/60 text-sm font-medium mb-1">오늘 방문자</p>
                  <h3 className="text-5xl font-bold mb-4">{stats.todayVisitorCount}</h3>
                  
                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/20">
                     <div>
-                        <p className="text-[10px] text-white/50 uppercase tracking-wider">TOTAL</p>
+                        <p className="text-[10px] text-white/50 uppercase tracking-wider">누적 방문자</p>
                         <p className="text-lg font-bold">{stats.totalVisitorCount.toLocaleString()}</p>
                     </div>
                     <div>
-                        <p className="text-[10px] text-white/50 uppercase tracking-wider">DAILY AVG</p>
+                        <p className="text-[10px] text-white/50 uppercase tracking-wider">일평균</p>
                         <p className="text-lg font-bold">{stats.averageVisitorCount.toLocaleString()}</p>
                     </div>
                  </div>
@@ -99,7 +99,7 @@ export default async function AdminDashboardPage() {
         <div className="bg-white border border-gray-100 p-6 rounded-xl shadow-sm hover:shadow-md transition relative overflow-hidden group">
           <div className="relative z-10 flex flex-col h-full justify-between">
             <div>
-              <p className="text-gray-500 text-sm font-medium mb-1">Portfolios</p>
+              <p className="text-gray-500 text-sm font-medium mb-1">포트폴리오</p>
               <h3 className="text-4xl font-bold text-gray-900">{stats.portfolioCount}</h3>
             </div>
             <div className="flex gap-3 mt-4">
@@ -118,7 +118,7 @@ export default async function AdminDashboardPage() {
         <div className="bg-white border border-gray-100 p-6 rounded-xl shadow-sm hover:shadow-md transition relative overflow-hidden group">
           <div className="relative z-10 flex flex-col h-full justify-between">
             <div>
-              <p className="text-gray-500 text-sm font-medium mb-1">Press Releases</p>
+              <p className="text-gray-500 text-sm font-medium mb-1">언론보도</p>
               <h3 className="text-4xl font-bold text-gray-900">{stats.mediaCount}</h3>
             </div>
             <div className="flex gap-3 mt-4">
@@ -136,10 +136,10 @@ export default async function AdminDashboardPage() {
 
       {/* 2. 방문자 차트 (CSS Simple Bar Chart) */}
       <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-0">
             <div>
-                <h3 className="text-xl font-bold">Monthly Visitor Trend</h3>
-                <p className="text-sm text-gray-500">최근 30일간의 방문자 추이 (세션 기준)</p>
+                <h3 className="text-xl font-bold">방문자 추이</h3>
+                <p className="text-sm text-gray-500">최근 30일간의 방문자 (세션 기준)</p>
             </div>
             <div className="text-sm text-gray-400 font-mono">
                 LAST 30 DAYS
@@ -147,7 +147,7 @@ export default async function AdminDashboardPage() {
         </div>
         
         {stats.visitorStats.length > 0 ? (
-          <div className="flex items-end justify-between gap-1 md:gap-2 h-64 w-full overflow-x-auto pb-2">
+          <div className="flex items-end justify-between gap-1 md:gap-2 h-72 w-full overflow-x-auto overflow-y-hidden pb-4 pt-12">
             {stats.visitorStats.map((stat) => {
               // 최대값 기준으로 높이 퍼센트 계산
               const maxVal = Math.max(...stats.visitorStats.map((s) => s.count), 10);
@@ -157,15 +157,15 @@ export default async function AdminDashboardPage() {
               const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
 
               return (
-                <div key={stat.date} className="flex flex-col items-center justify-end flex-1 gap-2 group h-full min-w-[20px]">
+                <div key={stat.date} className="flex flex-col items-center justify-end flex-1 gap-2 group h-full min-w-[24px]">
                   <div 
                     className={`relative w-full max-w-[30px] rounded-t-sm transition-all duration-300 ${isWeekend ? 'bg-blue-900/80 hover:bg-blue-800' : 'bg-black/80 hover:bg-black'}`}
                     style={{ height: `${heightPercent}%` }}
                   >
-                    {/* 툴팁 (호버시) */}
-                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20 shadow-lg pointer-events-none">
-                      <p className="font-bold">{stat.count}명</p>
-                      <p className="text-[10px] text-gray-400">{stat.date}</p>
+                    {/* 툴팁 (호버시) -> 항상 표시되는 숫자로 변경할지? 일단 툴팁 위치 확보를 위해 pt-12 추가함 */}
+                    {/* 숫자가 잘린다면 호버가 아닌 항상 표시 옵션도 고려. 여기서는 호버 유지하되 위치 보정. */}
+                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20 shadow-lg pointer-events-none mb-1">
+                      <span className="font-bold">{stat.count}</span>
                     </div>
                   </div>
                   <span className={`text-[9px] md:text-[10px] rotate-0 truncate w-full text-center ${isWeekend ? 'text-blue-600 font-bold' : 'text-gray-400'}`}>
@@ -177,7 +177,7 @@ export default async function AdminDashboardPage() {
             })}
           </div>
         ) : (
-          <div className="h-64 flex items-center justify-center text-gray-400 bg-gray-50 rounded-lg">
+          <div className="h-64 flex items-center justify-center text-gray-400 bg-gray-50 rounded-lg mt-8">
              아직 집계된 방문자 데이터가 없습니다.
           </div>
         )}
