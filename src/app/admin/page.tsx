@@ -34,7 +34,7 @@ export default async function AdminDashboardPage() {
                           <p className="text-blue-200 text-[10px] font-medium uppercase tracking-widest mb-1">D-DAY</p>
                           <div className="text-4xl font-bold font-mono">
                               {Math.ceil((new Date("2026-12-13T12:00:00").getTime() - Date.now()) / (1000 * 60 * 60 * 24))}
-                              <span className="text-sm font-normal text-blue-300 ml-1">days</span>
+                              <span className="text-sm font-normal text-blue-300 ml-1">일 남음</span>
                           </div>
                       </div>
                   </div>
@@ -61,7 +61,7 @@ export default async function AdminDashboardPage() {
                           <p className="text-gray-400 text-[10px] font-medium uppercase tracking-widest mb-1">REMAINING</p>
                           <div className="text-4xl font-bold font-mono text-yellow-500">
                               {Math.ceil((new Date("2026-12-13T12:00:00").getTime() - Date.now()) / (1000 * 60 * 60 * 24))}
-                              <span className="text-sm font-normal text-yellow-200/50 ml-1 text-gray-400">days</span>
+                              <span className="text-sm font-normal text-yellow-200/50 ml-1 text-gray-400">일 남음</span>
                           </div>
                       </div>
                   </div>
