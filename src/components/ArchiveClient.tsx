@@ -351,7 +351,7 @@ export default function ArchiveClient({ initialData }: { initialData: any[] }) {
 
                 {/* Description Content */}
                 <div
-                  className="text-sm text-gray-600 leading-8 text-justify min-h-[100px] prose prose-sm max-w-none prose-p:mb-4 prose-img:rounded-none prose-img:mt-8 prose-img:mb-8"
+                  className="text-sm text-gray-600 leading-8 text-justify min-h-[100px] prose prose-sm max-w-none prose-p:mb-4 prose-img:rounded-none prose-img:mt-8 prose-img:mb-8 prose-iframe:w-full prose-iframe:aspect-video prose-iframe:rounded-lg"
                   dangerouslySetInnerHTML={{
                     __html: stripImageFromContent(selectedExhibition.description, selectedExhibition.poster_url) || "<p class='text-gray-400 italic'>상세 설명이 없습니다.</p>",
                   }}
