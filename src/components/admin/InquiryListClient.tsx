@@ -96,7 +96,7 @@ export default function InquiryListClient({ initialInquiries }: { initialInquiri
             className="capitalize"
             size="sm"
           >
-            {f === "all" ? "전체 보기" : f === "new" ? "신규 미확인" : f === "general" ? "일반 문의" : "전시 신청"}
+            {f === "all" ? "전체 보기" : f === "new" ? "신규 미확인" : f === "general" ? "강의 문의" : "프로젝트 문의"}
           </Button>
         ))}
       </div>
@@ -125,7 +125,7 @@ export default function InquiryListClient({ initialInquiries }: { initialInquiri
                   </TableCell>
                   <TableCell>
                     <span className="font-medium text-xs">
-                        {item.type === "exhibition" ? "전시신청" : "일반문의"}
+                        {item.type === "exhibition" ? "프로젝트" : "강의문의"}
                     </span>
                   </TableCell>
                   <TableCell className="font-medium">{item.name}</TableCell>
@@ -150,7 +150,7 @@ export default function InquiryListClient({ initialInquiries }: { initialInquiri
                       <DialogContent className="max-w-2xl">
                         <DialogHeader>
                           <DialogTitle className="flex items-center gap-2">
-                            {selectedInquiry?.type === "exhibition" ? "🎨 전시 및 대관 신청" : "💬 일반 문의"}
+                            {selectedInquiry?.type === "exhibition" ? "🎨 프로젝트 협업 문의" : "💬 강의 및 기타 문의"}
                             <span className="text-xs font-normal text-gray-400 ml-auto">
                               {selectedInquiry?.created_at.split("T")[0]}
                             </span>
