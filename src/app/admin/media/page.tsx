@@ -88,7 +88,9 @@ export default async function AdminMediaList() {
                     {item.press_name}
                   </td>
                   <td className="p-4 text-gray-900 font-medium">
-                    {item.title}
+                    <Link href={`/admin/media/edit/${item.id}`} className="hover:text-blue-600 transition-colors">
+                        {item.title}
+                    </Link>
                   </td>
                   <td className="p-4 text-sm text-gray-500">
                     {item.published_date
