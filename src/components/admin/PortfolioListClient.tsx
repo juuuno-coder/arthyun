@@ -136,12 +136,16 @@ export default function PortfolioListClient({ initialPortfolios }: { initialPort
 
                                     {/* 2. 이미지 (Image) */}
                                     <td className="p-4 w-24">
-                                        <AdminThumbnail src={item.thumbnail_url} alt={item.title} />
+                                        <Link href={`/admin/portfolio/edit/${item.id}`} className="block w-full h-full cursor-pointer hover:opacity-80 transition-opacity">
+                                            <AdminThumbnail src={item.thumbnail_url} alt={item.title} />
+                                        </Link>
                                     </td>
 
                                     {/* 3. 프로젝트명 (Title) */}
                                     <td className="p-4">
-                                        <p className="font-bold text-gray-900">{item.title}</p>
+                                        <Link href={`/admin/portfolio/edit/${item.id}`} className="block group cursor-pointer">
+                                            <p className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{item.title}</p>
+                                        </Link>
                                     </td>
 
                                     {/* 4. 활성화 (Active) */}
