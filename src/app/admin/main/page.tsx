@@ -27,13 +27,14 @@ type Portfolio = {
     title: string;
     thumbnail_url: string;
     client?: string;
+    link_url?: string;
 };
 
 export default function AdminMainPage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     
-    // Main Settings State
+    // Main Settings State (Global)
     const [settingsId, setSettingsId] = useState<string>("1"); // Default ID
     const [youtubeUrl, setYoutubeUrl] = useState("");
     const [centerText, setCenterText] = useState("");
@@ -85,13 +86,105 @@ export default function AdminMainPage() {
             const list: Portfolio[] = [];
             snap.forEach(doc => {
                 const d = doc.data();
-                list.push({ id: doc.id, title: d.title, thumbnail_url: d.thumbnail_url, client: d.client });
+                list.push({ 
+                    id: doc.id, 
+                    title: d.title, 
+                    thumbnail_url: d.thumbnail_url, 
+                    client: d.client,
+                    link_url: d.link_url || "" 
+                });
             });
             setFeaturedList(list);
         } catch (error) {
             console.error(error);
         }
     };
+
+    const handleUpdateLink = async (id: string, url: string) => {
+        try {
+            await updateDoc(doc(db, "portfolios", id), {
+                link_url: url,
+            });
+            toast.success("링크가 저장되었습니다.");
+        } catch (error) {
+            console.error(error);
+            toast.error("링크 저장 실패");
+        }
+    };
+    
+    // ... handleSubmit (omitted for brevity, unchanged logic) ...
+// (Wait, `handleSubmit` is needed but not shown in ReplacementContent to avoid replacing too much? 
+// No, the tool replaces distinct range. But I need `handleSubmit` to be in scope or defined if I use it?
+// The user instruction "EndLine: 210" covers most of the top half. 
+// However, simply adding `handleUpdateLink` and `link_url` support is the goal.
+// I will provide the updated function definitions and the Portfolio type. 
+// I must be careful not to delete `handleSubmit`. 
+// Wait, `StartLine: 25`. It replaces everything from Type Def down to `handleRemoveFeatured` usage area?
+// Actually, `handleRemoveFeatured` is around line 133.
+// The code replacement below covers up to `fetchFeatured` mostly.
+// Ah, I need to inject `handleUpdateLink` before the return statement or inside component.
+// I will REPLACE from `type Portfolio` down to `handleRemoveFeatured` carefully OR do it in chunks.
+// The file is 341 lines.
+// Let's replace from `type Portfolio` (Line 25) down to `fetchFeatured` (Line 94).
+// And then insert `handleUpdateLink` separately? Or together.
+// The safest way is to REPLACE the whole top component logic block.
+
+// Let's try to replace just the needed parts.
+// 1. Update Type `Portfolio` (Lines 25-30).
+// 2. Update `fetchFeatured` (Lines 81-94).
+// 3. Add `handleUpdateLink` (New component logic).
+// 4. Update the JSX to show the input.
+
+// Let's do it in ONE large chunk for safety of context.
+
+type Portfolio = {
+    id: string;
+    title: string;
+    thumbnail_url: string;
+    client?: string;
+    link_url?: string;
+};
+
+// ... (skip lines 32-80 which are mostly unchanged except verify fetchData uses correct one) ... 
+
+// Actually, let's just replace the `type Portfolio` definition block and `fetchFeatured` block.
+
+    const fetchFeatured = async () => {
+        try {
+            const q = query(collection(db, "portfolios"), where("is_featured", "==", true));
+            const snap = await getDocs(q);
+            const list: Portfolio[] = [];
+            snap.forEach(doc => {
+                const d = doc.data();
+                list.push({ 
+                    id: doc.id, 
+                    title: d.title, 
+                    thumbnail_url: d.thumbnail_url, 
+                    client: d.client,
+                    link_url: d.link_url || "" // Added
+                });
+            });
+            setFeaturedList(list);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+    
+    // INSERT handleUpdateLink HERE
+    const handleUpdateLink = async (id: string, url: string) => {
+        try {
+            await updateDoc(doc(db, "portfolios", id), {
+                link_url: url
+            });
+            toast.success("링크가 저장되었습니다.");
+        } catch (error: any) {
+             toast.error("링크 저장 실패: " + error.message);
+        }
+    };
+
+// And then update the JSX map loop.
+
+// Let's use MultiReplaceFileContent to be precise.
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -144,8 +237,20 @@ export default function AdminMainPage() {
             toast.error("제외 실패: " + error.message);
         }
     };
+    
+    const handleUpdateLink = async (id: string, url: string) => {
+        try {
+            await updateDoc(doc(db, "portfolios", id), {
+                link_url: url
+            });
+            toast.success("링크가 업데이트되었습니다.");
+        } catch (error: any) {
+            toast.error("링크 업데이트 실패: " + error.message);
+        }
+    };
 
     const onDrop = (e: React.DragEvent) => {
+
         e.preventDefault();
         setIsDragging(false);
         if (e.dataTransfer.files && e.dataTransfer.files[0]) {
@@ -206,6 +311,16 @@ export default function AdminMainPage() {
                                         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3 pt-8">
                                             <h3 className="font-bold text-white text-sm truncate">{item.title}</h3>
                                             <p className="text-xs text-gray-300 truncate">{item.client || "Client"}</p>
+                                            {/* Link Input */}
+                                            <div className="mt-2">
+                                                <input 
+                                                    type="text" 
+                                                    placeholder="Link URL" 
+                                                    defaultValue={item.link_url}
+                                                    onBlur={(e) => handleUpdateLink(item.id, e.target.value)}
+                                                    className="w-full h-6 text-[10px] px-1 rounded bg-white/20 text-white placeholder:text-white/50 border border-white/20 focus:bg-white focus:text-black focus:outline-none transition-colors"
+                                                />
+                                            </div>
                                         </div>
 
                                         {/* Remove Button */}

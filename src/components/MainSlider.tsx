@@ -44,21 +44,43 @@ export default function MainSlider({ exhibitions, fallbackYoutubeUrl }: { exhibi
       {/* 📝 [컨텐츠 영역] 위치 조정 (기존보다 약간 위로: translate-y 감소) */}
       <div className="relative z-10 flex flex-col items-center text-center max-w-4xl px-6 animate-fade-in translate-y-8 md:translate-y-16">
         
-        {/* 1. 포스터 이미지 (사이즈 축소: 88% 수준) */}
-        {current.poster_url && (
-          <div className="relative w-[180px] h-[250px] md:w-[260px] md:h-[350px] mb-3">
-            <img
-              src={current.poster_url}
-              alt={current.title}
-              className="w-full h-full object-contain object-bottom drop-shadow-2xl"
-            />
-          </div>
-        )}
+        {current.link_url ? (
+             <Link href={current.link_url} className="group flex flex-col items-center cursor-pointer">
+                 {/* 1. 포스터 이미지 (사이즈 축소: 88% 수준) */}
+                {current.poster_url && (
+                  <div className="relative w-[180px] h-[250px] md:w-[260px] md:h-[350px] mb-3 transition-transform duration-300 group-hover:scale-105">
+                    <img
+                      src={current.poster_url}
+                      alt={current.title}
+                      className="w-full h-full object-contain object-bottom drop-shadow-2xl"
+                    />
+                  </div>
+                )}
 
-        {/* 제목 (메뉴명과 동일 폰트, 한 단계 작게) */}
-        <h2 className="text-xl md:text-3xl font-sans font-bold text-white mb-6 drop-shadow-md tracking-widest uppercase">
-          {current.title}
-        </h2>
+                {/* 제목 (메뉴명과 동일 폰트, 한 단계 작게) */}
+                <h2 className="text-xl md:text-3xl font-sans font-bold text-white mb-6 drop-shadow-md tracking-widest uppercase transition-colors group-hover:text-gray-200">
+                  {current.title}
+                </h2>
+             </Link>
+        ) : (
+            <>
+                {/* 1. 포스터 이미지 (사이즈 축소: 88% 수준) */}
+                {current.poster_url && (
+                  <div className="relative w-[180px] h-[250px] md:w-[260px] md:h-[350px] mb-3">
+                    <img
+                      src={current.poster_url}
+                      alt={current.title}
+                      className="w-full h-full object-contain object-bottom drop-shadow-2xl"
+                    />
+                  </div>
+                )}
+
+                {/* 제목 (메뉴명과 동일 폰트, 한 단계 작게) */}
+                <h2 className="text-xl md:text-3xl font-sans font-bold text-white mb-6 drop-shadow-md tracking-widest uppercase">
+                  {current.title}
+                </h2>
+            </>
+        )}
 
         {/* 전시 기간 */}
         <p className="text-xs md:text-sm text-gray-400 mb-8 font-light tracking-wider opacity-80">
@@ -66,10 +88,6 @@ export default function MainSlider({ exhibitions, fallbackYoutubeUrl }: { exhibi
             ? `${current.start_date.replace(/-/g, '.')} ~ ${current.end_date.replace(/-/g, '.')}`
             : ""}
         </p>
-
-
-        {/* 자세히 보기 버튼 */}
-
       </div>
     </div>
   );
