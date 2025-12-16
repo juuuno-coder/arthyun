@@ -102,7 +102,12 @@ export default function ArchiveClient({ initialData }: { initialData: any[] }) {
 
     // 2. 카테고리 필터링
     if (categoryFilter !== "ALL") {
-      result = result.filter(item => item.category === categoryFilter);
+      result = result.filter(item => {
+        if (item.categories && Array.isArray(item.categories)) {
+            return item.categories.includes(categoryFilter);
+        }
+        return item.category === categoryFilter;
+      });
     }
 
     // 3. 정렬
