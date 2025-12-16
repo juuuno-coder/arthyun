@@ -164,7 +164,6 @@ export default function AdminMainPage() {
     }
 
     return (
-    return (
         <div className="max-w-7xl mx-auto py-12 px-6">
             <h1 className="text-3xl font-serif font-bold mb-8">메인 화면 관리</h1>
             
@@ -273,7 +272,7 @@ export default function AdminMainPage() {
                                         <div className="relative w-full aspect-video bg-gray-100 rounded overflow-hidden group">
                                             {/* eslint-disable-next-line @next/next/no-img-element */}
                                             <img 
-                                                src={URL.createObjectURL(newPosterFile)} 
+                                                src={URL.createObjectURL(newPosterFile!)} 
                                                 alt="Preview" 
                                                 className="w-full h-full object-cover" 
                                             />
@@ -285,7 +284,7 @@ export default function AdminMainPage() {
                                         <div className="relative w-full aspect-video bg-gray-100 rounded overflow-hidden group">
                                             {/* eslint-disable-next-line @next/next/no-img-element */}
                                             <img 
-                                                src={posterUrl} 
+                                                src={posterUrl!} 
                                                 alt="Current" 
                                                 className="w-full h-full object-cover" 
                                             />

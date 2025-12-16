@@ -30,7 +30,7 @@ const CATEGORY_MAP: Record<string, string> = {
     "Other": "기타"
 };
 
-};
+
 
 function AdminThumbnail({ src, alt }: { src?: string, alt: string }) {
     const [error, setError] = useState(false);
