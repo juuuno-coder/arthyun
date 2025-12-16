@@ -1,6 +1,19 @@
-// ... imports ...
-import { Badge } from "@/components/ui/badge"; 
-// ...
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import dynamic from "next/dynamic";
+import { compressImage } from "@/utils/compressImage";
+import { db, storage } from "@/lib/firebase";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
+const Editor = dynamic(() => import("@/components/Editor"), { ssr: false });
 
 const CATEGORIES = [
     { value: "PublicArtDesign", label: "공공미술/디자인" },
@@ -26,8 +39,6 @@ export default function EditPortfolioPage() {
     // Form States
     const [title, setTitle] = useState("");
     const [client, setClient] = useState("");
-    // const [location, setLocation] = useState(""); // Unused effectively? Let's keep if needed or remove if clutter. Removed in write page. 
-    // Write page removed it. I will remove it here too for consistency unless needed.
     const [completionDate, setCompletionDate] = useState("");
     const [categories, setCategories] = useState<string[]>([]);
     const [content, setContent] = useState("");
@@ -47,7 +58,6 @@ export default function EditPortfolioPage() {
                     const data = docSnap.data();
                     setTitle(data.title);
                     setClient(data.client || "");
-                    // setLocation(data.location || "");
                     setCompletionDate(data.completion_date || "");
                     
                     // Priority: data.categories acts as source of truth if exists
@@ -55,7 +65,7 @@ export default function EditPortfolioPage() {
                          setCategories(data.categories);
                     } else {
                          // Fallback to legacy single category
-                         setCategories(data.category ? [data.category] : ["Public Art"]);
+                         setCategories(data.category ? [data.category] : ["PublicArtDesign"]);
                     }
 
                     setContent(data.description || "");
@@ -106,7 +116,6 @@ export default function EditPortfolioPage() {
             await updateDoc(docRef, {
                 title,
                 client,
-                // location,
                 completion_date: completionDate === "" ? null : completionDate,
                 category: categories[0], // Legacy support
                 categories: categories,  // New support
