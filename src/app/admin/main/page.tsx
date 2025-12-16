@@ -112,75 +112,8 @@ export default function AdminMainPage() {
         }
     };
     
-    // ... handleSubmit (omitted for brevity, unchanged logic) ...
-// (Wait, `handleSubmit` is needed but not shown in ReplacementContent to avoid replacing too much? 
-// No, the tool replaces distinct range. But I need `handleSubmit` to be in scope or defined if I use it?
-// The user instruction "EndLine: 210" covers most of the top half. 
-// However, simply adding `handleUpdateLink` and `link_url` support is the goal.
-// I will provide the updated function definitions and the Portfolio type. 
-// I must be careful not to delete `handleSubmit`. 
-// Wait, `StartLine: 25`. It replaces everything from Type Def down to `handleRemoveFeatured` usage area?
-// Actually, `handleRemoveFeatured` is around line 133.
-// The code replacement below covers up to `fetchFeatured` mostly.
-// Ah, I need to inject `handleUpdateLink` before the return statement or inside component.
-// I will REPLACE from `type Portfolio` down to `handleRemoveFeatured` carefully OR do it in chunks.
-// The file is 341 lines.
-// Let's replace from `type Portfolio` (Line 25) down to `fetchFeatured` (Line 94).
-// And then insert `handleUpdateLink` separately? Or together.
-// The safest way is to REPLACE the whole top component logic block.
-
-// Let's try to replace just the needed parts.
-// 1. Update Type `Portfolio` (Lines 25-30).
-// 2. Update `fetchFeatured` (Lines 81-94).
-// 3. Add `handleUpdateLink` (New component logic).
-// 4. Update the JSX to show the input.
-
-// Let's do it in ONE large chunk for safety of context.
-
-type Portfolio = {
-    id: string;
-    title: string;
-    thumbnail_url: string;
-    client?: string;
-    link_url?: string;
-};
-
-// ... (skip lines 32-80 which are mostly unchanged except verify fetchData uses correct one) ... 
-
-// Actually, let's just replace the `type Portfolio` definition block and `fetchFeatured` block.
-
-    const fetchFeatured = async () => {
-        try {
-            const q = query(collection(db, "portfolios"), where("is_featured", "==", true));
-            const snap = await getDocs(q);
-            const list: Portfolio[] = [];
-            snap.forEach(doc => {
-                const d = doc.data();
-                list.push({ 
-                    id: doc.id, 
-                    title: d.title, 
-                    thumbnail_url: d.thumbnail_url, 
-                    client: d.client,
-                    link_url: d.link_url || "" // Added
-                });
-            });
-            setFeaturedList(list);
-        } catch (error) {
-            console.error(error);
-        }
-    };
-    
-    // INSERT handleUpdateLink HERE
-    const handleUpdateLink = async (id: string, url: string) => {
-        try {
-            await updateDoc(doc(db, "portfolios", id), {
-                link_url: url
-            });
-            toast.success("링크가 저장되었습니다.");
-        } catch (error: any) {
-             toast.error("링크 저장 실패: " + error.message);
-        }
-    };
+    // handleSubmit was here originally/referenced
+    // We will ensure handleSubmit follows.
 
 // And then update the JSX map loop.
 
@@ -238,16 +171,7 @@ type Portfolio = {
         }
     };
     
-    const handleUpdateLink = async (id: string, url: string) => {
-        try {
-            await updateDoc(doc(db, "portfolios", id), {
-                link_url: url
-            });
-            toast.success("링크가 업데이트되었습니다.");
-        } catch (error: any) {
-            toast.error("링크 업데이트 실패: " + error.message);
-        }
-    };
+
 
     const onDrop = (e: React.DragEvent) => {
 
