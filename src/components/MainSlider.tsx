@@ -34,12 +34,17 @@ export default function MainSlider({ exhibitions, fallbackYoutubeUrl }: { exhibi
       {/* 📺 [배경 레이어] 제거됨 (상위 page.tsx에서 MainBackground로 처리) */}
 
       {/* 🧭 [네비게이션 버튼] */}
-      <button onClick={prevSlide} className="absolute left-4 md:left-10 z-20 text-white/50 hover:text-white transition">
-        <ChevronLeft size={40} strokeWidth={1} />
-      </button>
-      <button onClick={nextSlide} className="absolute right-4 md:right-10 z-20 text-white/50 hover:text-white transition">
-        <ChevronRight size={40} strokeWidth={1} />
-      </button>
+      {/* 🧭 [네비게이션 버튼] - 이미지가 1개보다 많을 때만 표시 */}
+      {exhibitions.length > 1 && (
+        <>
+          <button onClick={prevSlide} className="absolute left-4 md:left-10 z-20 text-white/50 hover:text-white transition">
+            <ChevronLeft size={40} strokeWidth={1} />
+          </button>
+          <button onClick={nextSlide} className="absolute right-4 md:right-10 z-20 text-white/50 hover:text-white transition">
+            <ChevronRight size={40} strokeWidth={1} />
+          </button>
+        </>
+      )}
 
       {/* 📝 [컨텐츠 영역] 위치 조정 (기존보다 약간 위로: translate-y 감소) */}
       <div className="relative z-10 flex flex-col items-center text-center max-w-4xl px-6 animate-fade-in translate-y-8 md:translate-y-16">
